@@ -279,7 +279,7 @@ class DebateRoom:
         self.vc = vc
 
         # Dynamic
-        self._topics: List[Topic] = []
+        self.topics: List[Topic] = []
         self._topic_voters: List[discord.Member] = []
         self.match: Optional[DebateMatch] = None
         self._conclude_voters: List[discord.Member] = []
@@ -323,15 +323,19 @@ class DebateRoom:
 
     def get_topic_members(self) -> List[discord.Member]:
         """Generate the unique Members of all Topics."""
-        return [topic.author for topic in self._topics]
+        if self.topics:
+            return [topic.author for topic in self.topics]
+        else:
+            return []
 
     # Topic Methods
 
     def topic_from_member(self, member: discord.Member) -> Optional[Topic]:
         """Get a Topic from a Member."""
-        topic = [t for t in self._topics if t.author == member]
-        if len(topic) > 0:
-            return topic[0]
+        if self.topics:
+            topic = [t for t in self.topics if t.author == member]
+            if len(topic) > 0:
+                return topic[0]
 
     def topics_from_authors(self, topics: List[Topic]) -> List[Topic]:
         """Get a list of topics from possible authors."""
@@ -343,29 +347,31 @@ class DebateRoom:
 
     def update_prioritized_topic(self) -> bool:
         """Updates the oldest topic to current topic"""
-        if len(self._topics) == 0:
+        if len(self.topics) == 0:
             return False
-        sorted_topics = sorted(self._topics, key=lambda topic: topic.created_at)
+        sorted_topics = sorted(self.topics, key=lambda topic: topic.created_at)
         sorted_topics = self.topics_from_authors(sorted_topics)
         if len(sorted_topics) == 0:
             return False
         oldest_topic = sorted_topics[0]
-        oldest_topic_index = self._topics.index(oldest_topic)
-        for topic in self._topics:
+        oldest_topic_index = self.topics.index(oldest_topic)
+        for topic in self.topics:
             topic.prioritized = False
-        self._topics[oldest_topic_index].prioritized = True
+        self.topics[oldest_topic_index].prioritized = True
         return True
 
     def remove_voter_from_topics(self, voter: discord.Member):
         """Removes a voter from all topics."""
-        for topic in self._topics:
-            topic.remove_voter(voter)
+        if self.topics:
+            for topic in self.topics:
+                topic.remove_voter(voter)
 
     def remove_priority_from_topic(self, author: discord.Member):
         """Removes priority from topic based on topic author."""
-        for topic in self._topics:
-            if topic.author == author:
-                topic.prioritized = False
+        if self.topics:
+            for topic in self.topics:
+                if topic.author == author:
+                    topic.prioritized = False
 
     def add_topic(self, topic: Topic) -> bool:
         """Add a new topic if the member is new. If old member, then overwrite
@@ -379,20 +385,20 @@ class DebateRoom:
         if topic.author in self.get_topic_members():
             index = self.get_topic_members().index(topic.author)
             self.remove_voter_from_topics(topic.author)
-            self._topics[index] = topic
+            self.topics[index] = topic
             return True
         else:
-            self._topics.append(topic)
+            self.topics.append(topic)
             return False
 
     def _calculate_max_voted_topics(self) -> List[Topic]:
         """Calculates maximum voted topic."""
-        if len(self._topics) == 0:
+        if len(self.topics) == 0:
             return []
-        max_topic = max(self._topics, key=lambda topic: topic.votes)
+        max_topic = max(self.topics, key=lambda topic: topic.votes)
         max_voted_topics = [
             topic
-            for index, topic in enumerate(self._topics)
+            for index, topic in enumerate(self.topics)
             if topic.votes == max_topic.votes
         ]
         return max_voted_topics
@@ -421,7 +427,7 @@ class DebateRoom:
     def remove_topic(self, author: discord.Member):
         """Remove a topic from room."""
         topic = self.topic_from_member(author)
-        self._topics.remove(topic)
+        self.topics.remove(topic)
 
     def remove_obsolete_topic(self, author: discord.Member):
         """Remove a topic when it hits 0 votes and the author is not in the
@@ -497,3 +503,7 @@ class DebateRoom:
 
     def remove_conclude_voters(self):
         self._conclude_voters = []
+
+    def purge_topics(self):
+        if self.topics:
+            self.topics = []

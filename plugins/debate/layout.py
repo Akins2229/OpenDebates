@@ -5,7 +5,14 @@ from discord import Permissions, Colour, ChannelType, utils, PermissionOverwrite
 from discord.ext import commands
 from discord.ext.commands import BucketType
 
-from plugins.debate.overwrites import generate_overwrite
+from plugins.debate.overwrites import (
+    generate_overwrite,
+    lockdown_permissions,
+    lockdown_debate_member_perms,
+    lockdown_citizen_general_perms,
+    _debate_tc_member_permissions,
+    _debate_tc_citizen_permissions,
+)
 from plugins.debate.rooms.interface import DebateRooms
 
 
@@ -204,49 +211,49 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         # Setup Rated Roles
         self.role_grandmaster = await guild.create_role(
             name="Grandmaster 👑",
-            permissions=Permissions(permissions=36768832),
+            permissions=Permissions(permissions=0),
             hoist=True,
         )
 
         self.role_legend = await guild.create_role(
-            name="Legend 🏆", permissions=Permissions(permissions=36768832), hoist=True
+            name="Legend 🏆", permissions=Permissions(permissions=0), hoist=True
         )
 
         self.role_master = await guild.create_role(
-            name="Master ⚖️", permissions=Permissions(permissions=36768832), hoist=True
+            name="Master ⚖️", permissions=Permissions(permissions=0), hoist=True
         )
 
         self.role_expert = await guild.create_role(
-            name="Expert ⚔", permissions=Permissions(permissions=36768832), hoist=True
+            name="Expert ⚔️", permissions=Permissions(permissions=0), hoist=True
         )
 
         self.role_distinguished = await guild.create_role(
             name="Distinguished 💥",
-            permissions=Permissions(permissions=36768832),
+            permissions=Permissions(permissions=0),
             hoist=True,
         )
 
         self.role_apprentice = await guild.create_role(
             name="Apprentice 💡",
-            permissions=Permissions(permissions=36768832),
+            permissions=Permissions(permissions=0),
             hoist=True,
         )
 
         self.role_novice = await guild.create_role(
-            name="Novice 🔥", permissions=Permissions(permissions=36768832), hoist=True
+            name="Novice 🔥", permissions=Permissions(permissions=0), hoist=True
         )
 
         self.role_initiate = await guild.create_role(
-            name="Initiate 🔰", permissions=Permissions(permissions=36768832), hoist=True
+            name="Initiate 🔰", permissions=Permissions(permissions=0), hoist=True
         )
 
         self.role_rookie = await guild.create_role(
-            name="Rookie 🧷", permissions=Permissions(permissions=36768832), hoist=True
+            name="Rookie 🧷", permissions=Permissions(permissions=0), hoist=True
         )
 
         self.role_incompetent = await guild.create_role(
             name="Incompetent 💯",
-            permissions=Permissions(permissions=36768832),
+            permissions=Permissions(permissions=0),
             hoist=True,
         )
 
@@ -726,6 +733,185 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         # Confirm debates is enabled
         response = discord.Embed(color=0x77B255, title="✅ Debates Disabled")
         await progress_message.edit(embed=response, delete_after=30)
+
+    @commands.has_role("Staff")
+    @commands.command(
+        name="lockdown",
+        brief="Locks the entire server down during downtime issues.",
+        help="This commands locks down the whole server from being used"
+        "by all members except staff. Should only be used when all of the "
+        "moderation bots go down.",
+    )
+    async def lockdown(self, ctx):
+        await self.channels["tc_commands"].set_permissions(
+            self.roles["role_member"], overwrite=lockdown_permissions
+        )
+        await self.channels["tc_commands"].set_permissions(
+            self.roles["role_citizen"], overwrite=lockdown_permissions
+        )
+        await self.channels["category_community"].set_permissions(
+            self.roles["role_member"], overwrite=lockdown_permissions
+        )
+        await self.channels["category_community"].set_permissions(
+            self.roles["role_citizen"], overwrite=lockdown_permissions
+        )
+
+        await self.channels["category_debate"].set_permissions(
+            self.roles["role_member"], overwrite=lockdown_debate_member_perms
+        )
+
+        await self.channels["category_debate"].set_permissions(
+            self.roles["role_citizen"], overwrite=lockdown_citizen_general_perms
+        )
+
+        for _channel_num in range(1, 21):
+            vc = discord.utils.get(
+                ctx.guild.voice_channels, name=f"Debate {_channel_num}"
+            )
+            tc = discord.utils.get(
+                ctx.guild.text_channels, name=f"debate-{_channel_num}"
+            )
+            await tc.set_permissions(
+                self.roles["role_member"],
+                create_instant_invite=False,
+                manage_channels=False,
+                add_reactions=False,
+                read_messages=False,
+                view_channel=False,
+                send_messages=False,
+                send_tts_messages=False,
+                manage_messages=False,
+                embed_links=False,
+                attach_files=False,
+                read_message_history=True,
+                mention_everyone=False,
+                external_emojis=False,
+                manage_permissions=False,
+                manage_webhooks=False,
+            )
+            await tc.set_permissions(
+                self.roles["role_citizen"],
+                create_instant_invite=False,
+                manage_channels=False,
+                add_reactions=False,
+                read_messages=False,
+                view_channel=False,
+                send_messages=False,
+                send_tts_messages=False,
+                manage_messages=False,
+                embed_links=False,
+                attach_files=False,
+                read_message_history=True,
+                mention_everyone=False,
+                external_emojis=False,
+                manage_permissions=False,
+                manage_webhooks=False,
+            )
+
+            if _channel_num != 1:
+                await vc.set_permissions(
+                    self.roles["role_member"],
+                    priority_speaker=False,
+                    stream=False,
+                    view_channel=False,
+                    connect=False,
+                    speak=False,
+                    mute_members=False,
+                    deafen_members=False,
+                    move_members=False,
+                    use_voice_activation=False,
+                    manage_permissions=False
+                )
+                await vc.set_permissions(
+                    self.roles["role_citizen"],
+                    priority_speaker=False,
+                    stream=False,
+                    view_channel=False,
+                    connect=False,
+                    speak=False,
+                    mute_members=False,
+                    deafen_members=False,
+                    move_members=False,
+                    use_voice_activation=False,
+                    manage_permissions=False
+                )
+            else:
+                await vc.set_permissions(
+                    self.roles["role_member"],
+                    priority_speaker=False,
+                    stream=False,
+                    view_channel=True,
+                    connect=False,
+                    speak=False,
+                    mute_members=False,
+                    deafen_members=False,
+                    move_members=False,
+                    use_voice_activation=False,
+                    manage_permissions=False
+                )
+                await vc.set_permissions(
+                    self.roles["role_citizen"],
+                    priority_speaker=False,
+                    stream=False,
+                    view_channel=True,
+                    connect=False,
+                    speak=False,
+                    mute_members=False,
+                    deafen_members=False,
+                    move_members=False,
+                    use_voice_activation=False,
+                    manage_permissions=False
+                )
+
+        await self.bot.cogs['Debate'].lockdown_cancel_all_matches()
+
+    @commands.has_role("Director")
+    @commands.command(
+        name="reopen",
+        brief="Unlocks the server for public use.",
+        help="This commands unlocks the server for public use. It should only be used "
+        "when at least one of the moderation bots are back up. Only directors can"
+        "use this command.",
+    )
+    async def reopen(self, ctx):
+        await self.channels["tc_commands"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "commands")
+        )
+        await self.channels["category_community"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "community")
+        )
+        await self.channels["tc_general"].edit(sync_permissions=True)
+        await self.channels["tc_serious"].edit(sync_permissions=True)
+        await self.channels["tc_meme_dump"].edit(sync_permissions=True)
+        await self.channels["category_debate"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "debate")
+        )
+
+        for _channel_num in range(1, 21):
+            vc = discord.utils.get(
+                ctx.guild.voice_channels, name=f"Debate {_channel_num}"
+            )
+            tc = discord.utils.get(
+                ctx.guild.text_channels, name=f"debate-{_channel_num}"
+            )
+            await vc.edit(
+                sync_permissions=True
+            )
+            overwrite = PermissionOverwrite(view_channel=False)
+            if _channel_num != 1:
+                await vc.set_permissions(
+                    self.roles["role_citizen"], overwrite=overwrite
+                )
+
+                await vc.set_permissions(
+                    self.roles["role_member"], overwrite=overwrite
+                )
+            await tc.set_permissions(
+                self.roles["role_member"], overwrite=_debate_tc_member_permissions
+            )
+            await tc.set_permissions(
+                self.roles["role_citizen"], overwrite=_debate_tc_citizen_permissions
+            )
 
     @commands.has_role("Engineering")
     @commands.command(
