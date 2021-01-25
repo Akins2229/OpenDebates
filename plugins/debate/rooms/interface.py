@@ -64,8 +64,11 @@ def disabled_while_concluding():
     def predicate(ctx):
         room_number = ctx.cog.get_room_number(ctx.channel)
         room = ctx.cog.get_room(room_number)
-        if room.vc in ctx.cog.concluding_maps:
-            return not ctx.cog.concluding_maps[room.vc]
+        if room.match is None:
+            return True
+
+        if room.match.concluding:
+            return False
         else:
             return True
 
@@ -99,9 +102,6 @@ class DebateRooms(commands.Cog, name="Debate"):
         self.allowed_debate_channels = allowed_debate_channels
         self.allowed_misc_channels = allowed_misc_channels
         self.enabled = False
-        self.concluding_maps = {}
-        self.concluded_maps = {}
-        self.voice_leave_concluded_maps = {}
 
         # Implementation Junk
         self.debate_room_tcs = []
@@ -183,8 +183,10 @@ class DebateRooms(commands.Cog, name="Debate"):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author == self.bot.user:
-            # Do nothing if the message is from this bot!
-            return
+            # Do nothing if the message is persistent embed
+            if len(message.embeds) > 0:
+                if message.embeds[0].title.startswith("Debate Room"):
+                    return
 
         if message.channel in self.debate_room_tcs:
             # Get number
@@ -343,93 +345,45 @@ class DebateRooms(commands.Cog, name="Debate"):
         else:
             current_topic = room.current_topic()
 
+        match = room.match
+
         self.logger.debug(f"Topics: {room.topics}")
         if current_topic is not None:
-            if not room.match:
+            if not match:
                 room.start_match(current_topic)
             else:
                 for member in room.vc.members:
                     await room.vc.set_permissions(member, overwrite=None)
+
+                # Do nothing if there are no voters
                 if not room.match.check_voters():
                     return
 
                 debaters = []
-                update_conclude = False
-                if room.vc in self.concluding_maps:
-                    if not self.concluding_maps[room.vc]:
-                        debaters = room.stop_match()
-
-                        for debater in debaters:
-                            # Remove overwrite from VC and mute
-                            await room.vc.set_permissions(
-                                debater.member, overwrite=None
-                            )
-                            await debater.member.edit(mute=True)
-
-                        if (
-                            room.vc in self.concluding_maps
-                            and room.vc in self.concluded_maps
-                        ):
-                            self.logger.debug(
-                                f"Concluding (On Update Topic):"
-                                f" {self.concluding_maps[room.vc]}"
-                            )
-                            self.logger.debug(
-                                f"Concluded (On Update Topic):"
-                                f" {self.concluded_maps[room.vc]}"
-                            )
-                            if not self.concluding_maps[room.vc]:
-                                if not self.concluded_maps[room.vc]:
-                                    self.concluding_maps[room.vc] = True
-                                    self.concluded_maps[room.vc] = False
-                                    print("In")
-                                    await self.conclude_debate(room, debaters)
-                                    self.concluding_maps[room.vc] = False
-                                    self.concluded_maps[room.vc] = True
-                                    update_conclude = True
-                        else:
-                            self.concluding_maps[room.vc] = True
-                            self.concluded_maps[room.vc] = False
-                            await self.conclude_debate(room, debaters)
-                            self.concluding_maps[room.vc] = False
-                            self.concluded_maps[room.vc] = True
-                            update_conclude = True
-                else:
+                if match.concluding is False and match.concluded is False:
                     debaters = room.stop_match()
 
+                    # Mute debaters early
                     for debater in debaters:
                         # Remove overwrite from VC and mute
-                        await room.vc.set_permissions(debater.member, overwrite=None)
-                        if debater.member in room.vc.members:
-                            await debater.member.edit(mute=True)
+                        await room.vc.set_permissions(
+                            debater.member, overwrite=None
+                        )
+                        await debater.member.edit(mute=True)
 
-                    self.concluding_maps[room.vc] = True
-                    self.concluded_maps[room.vc] = False
+                    match.concluding = True
                     await self.conclude_debate(room, debaters)
-                    self.concluding_maps[room.vc] = False
-                    self.concluded_maps[room.vc] = True
-                    update_conclude = True
+                    match.concluding = False
+                    match.concluded = True
+                elif match.concluding is False and match.concluded is True:
+                    return
+                elif match.concluding is True and match.concluded is False:
+                    return
 
-                if room.vc in self.concluding_maps and room.vc in self.concluded_maps:
-                    self.logger.debug(
-                        f"Concluding (On Update Topic):"
-                        f" {self.concluding_maps[room.vc]}"
-                    )
-                    self.logger.debug(
-                        f"Concluded (On Update Topic):"
-                        f" {self.concluded_maps[room.vc]}"
-                    )
-                    if not self.concluding_maps[room.vc] and not update_conclude:
-                        if not self.concluded_maps[room.vc]:
-                            self.concluding_maps[room.vc] = True
-                            self.concluded_maps[room.vc] = False
-                            print("In 2")
-                            await self.conclude_debate(room, debaters)
-                            self.concluding_maps[room.vc] = False
-                            self.concluded_maps[room.vc] = True
-
+                current_topic = room.current_topic()
                 room.start_match(current_topic)
-                self.concluding_maps[room.vc] = False
+                for member in room.vc.members:
+                    await member.edit(mute=True)
 
     @only_debate_channels()
     @disabled_while_concluding()
@@ -602,20 +556,13 @@ class DebateRooms(commands.Cog, name="Debate"):
                 )
 
                 if len(active_debaters) <= 1:
-                    if (
-                        (room_before.vc in self.voice_leave_concluded_maps)
-                        or (room_before.vc in self.concluded_maps)
-                        or (room_before.vc in self.concluding_maps)
-                    ):
+                    if room_before.match.concluding or room_before.match.concluded:
                         pass
                     else:
-
-                        self.voice_leave_concluded_maps[room_before.vc] = True
+                        room_before.match.concluding = True
                         await self.conclude_debate(
                             room_before, debaters=room_before.stop_match()
                         )
-            # else:
-            #     await self.update_topic(room_before)
 
             # Remove overwrite from VC
             await room_before.vc.set_permissions(member, overwrite=None)
@@ -665,14 +612,10 @@ class DebateRooms(commands.Cog, name="Debate"):
                 )
 
                 if len(active_debaters) <= 1:
-                    if (
-                        (room_before.vc in self.voice_leave_concluded_maps)
-                        or (room_before.vc in self.concluded_maps)
-                        or (room_before.vc in self.concluding_maps)
-                    ):
+                    if room_before.match.concluding or room_before.match.concluded:
                         pass
                     else:
-                        self.voice_leave_concluded_maps[room_before.vc] = True
+                        room_before.match.concluding = True
                         await self.conclude_debate(
                             room_before, debaters=room_before.stop_match()
                         )
@@ -742,13 +685,25 @@ class DebateRooms(commands.Cog, name="Debate"):
         "active topic is removed then ELO ratings for that debate will be "
         "calculated.",
     )
-    async def remove_topic(self, ctx, member: discord.Member):
+    async def remove_topic(self, ctx, member: Optional[Member]):
         room_num = self.get_room_number(ctx.channel)
         room = None
         if room_num:
             room = self.get_room(room_num)
         if room:
-            room.remove_topic(member)
+            if member:
+                topic = room.topic_from_member(member)
+            else:
+                topic = room.current_topic()
+            if room.match:
+                if topic == room.match.topic:
+                    for current_member in room.vc.members:
+                        await current_member.edit(mute=True)
+            if member:
+                room.remove_topic(member)
+            else:
+                room.remove_topic(room.current_topic().author)
+            room.match = None  # Clear match
             await self.update_topic(room)
 
     @commands.has_role("Engineering")
@@ -1198,6 +1153,7 @@ class DebateRooms(commands.Cog, name="Debate"):
     )
     async def conclude(self, ctx):
         room = self.get_room(self.get_room_number(ctx.channel))
+        match = room.match
 
         # Exit if not in a debate room
         if not self.check_in_debate(ctx):
@@ -1219,12 +1175,8 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed = discord.Embed(title="✅ Vote to conclude debate cast.")
             await ctx.send(embed=embed, delete_after=5)
 
-        if room.vc in self.concluding_maps:
-            if self.concluding_maps[room.vc]:
-                return
-
         if concluded:
-            self.concluding_maps[room.vc] = True
+            match.concluding = True
             embed = discord.Embed(
                 title="⏸ Debate concluding..",
                 description="ELO ratings are being updated.",
@@ -1296,8 +1248,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                 description="ELO ratings have been updated.",
             )
             await ctx.send(embed=embed)
-            self.concluding_maps[room.vc] = False
-            self.concluded_maps[room.vc] = True
+            match.concluding = False
+            match.concluded = True
 
         else:
             if debaters:

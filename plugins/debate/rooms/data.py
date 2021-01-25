@@ -107,6 +107,10 @@ class DebateMatch:
         self.session_start: Optional[datetime.datetime] = None
         self.session_end: Optional[datetime.datetime] = None
 
+        # Progress States
+        self.concluding = False
+        self.concluded = False
+
     def add_for(self, participant: Participant):
         p = participant
         for _ in self.participants:
@@ -427,7 +431,8 @@ class DebateRoom:
     def remove_topic(self, author: discord.Member):
         """Remove a topic from room."""
         topic = self.topic_from_member(author)
-        self.topics.remove(topic)
+        if topic:
+            self.topics.remove(topic)
 
     def remove_obsolete_topic(self, author: discord.Member):
         """Remove a topic when it hits 0 votes and the author is not in the
