@@ -380,8 +380,6 @@ class DebateRooms(commands.Cog, name="Debate"):
                     return
 
                 debaters = []
-                print(f"Match - Concluding:{match.concluding},"
-                      f" Concluded:{match.concluded}")
                 if match.concluding is False and match.concluded is False:
                     debaters = room.stop_match()
 
