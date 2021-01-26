@@ -264,6 +264,16 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed.add_field(name="**Topic**:", value=f"{topic}")
             await self.interface_messages[index].edit(embed=embed)
 
+    async def resend_im(self, room_num):
+        index = room_num - 1
+        im_del = self.interface_messages[index]
+        try:
+            await im_del.delete()
+        except discord.errors.NotFound as e_info:
+            return
+        im = await self.send_embed_message(room_num)
+
+
     def check_in_debate(self, ctx):
         """Check if someone is in the corresponding TextChannel or
         VoiceChannel to allow a command.
@@ -351,15 +361,27 @@ class DebateRooms(commands.Cog, name="Debate"):
         if current_topic is not None:
             if not match:
                 room.start_match(current_topic)
+                await self.resend_im(room.number)
             else:
                 for member in room.vc.members:
                     await room.vc.set_permissions(member, overwrite=None)
 
                 # Do nothing if there are no voters
                 if not room.match.check_voters():
+                    debaters = room.match.get_debaters()
+
+                    # Mute debaters early
+                    for debater in debaters:
+                        # Remove overwrite from VC and mute
+                        await room.vc.set_permissions(
+                            debater.member, overwrite=None
+                        )
+                        await debater.member.edit(mute=True)
                     return
 
                 debaters = []
+                print(f"Match - Concluding:{match.concluding},"
+                      f" Concluded:{match.concluded}")
                 if match.concluding is False and match.concluded is False:
                     debaters = room.stop_match()
 
@@ -382,6 +404,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
                 current_topic = room.current_topic()
                 room.start_match(current_topic)
+                await self.resend_im(room.number)
                 for member in room.vc.members:
                     await member.edit(mute=True)
 
