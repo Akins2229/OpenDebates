@@ -36,7 +36,7 @@ version from the master branch.
 
 
 Since OpenDebates has a lot of dependencies, it is wise to install a virtualenv first.
-Please do not use `pipenv <https://pipenv.kennethreitz.org/>`_ however.
+Please do not use `pipenv <https://pipenv.pypa.io/en/latest/>`_ however.
 It's incompatible with Open Debates dependencies and may cause more problems in
 the future. If you wish to submit a pull request to fix this problem please read more `here <https://github.com/pypa/pipenv/issues/1578>`_
 

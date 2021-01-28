@@ -1,14 +1,14 @@
 import asyncio
 import datetime
 from queue import PriorityQueue
-from typing import Union, Optional
+from typing import Optional, Union
 
 import discord
 from discord import Member, PermissionOverwrite
 from discord.ext import commands
 from discord.ext.commands import BucketType
 
-from plugins.debate.rooms.data import Topic, DebateRoom, Participant
+from plugins.debate.rooms.data import DebateRoom, Participant, Topic
 
 
 def only_debate_channels():
@@ -301,7 +301,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         embed = discord.Embed(
             title="⏸ Debate concluding..",
             description="ELO ratings are being updated. "
-                        "Debate specific commands will not run.",
+            "Debate specific commands will not run.",
         )
 
         check_voters = room.match.check_voters()
@@ -327,7 +327,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             await debate_feed.send(embed=embed)
 
             for key, val in self.elo_role_maps.items():
-                guild  = room.vc.guild
+                guild = room.vc.guild
                 if guild.get_member(debater):
                     await debater.member.remove_roles(
                         debater.member.guild.get_role(self.elo_role_maps[key]),
@@ -381,9 +381,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                     # Mute debaters early
                     for debater in debaters:
                         # Remove overwrite from VC and mute
-                        await room.vc.set_permissions(
-                            debater.member, overwrite=None
-                        )
+                        await room.vc.set_permissions(debater.member, overwrite=None)
                         await debater.member.edit(mute=True)
                     return
 
@@ -394,9 +392,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                     # Mute debaters early
                     for debater in debaters:
                         # Remove overwrite from VC and mute
-                        await room.vc.set_permissions(
-                            debater.member, overwrite=None
-                        )
+                        await room.vc.set_permissions(debater.member, overwrite=None)
                         await debater.member.edit(mute=True)
 
                     match.concluding = True
@@ -1259,8 +1255,11 @@ class DebateRooms(commands.Cog, name="Debate"):
                             guild = room.vc.guild
                             if guild.get_member(debater):
                                 await debater.member.add_roles(
-                                    debater.member.guild.get_role(self.elo_role_maps[key]),
-                                    reason="Automatically added at the " "end of a match.",
+                                    debater.member.guild.get_role(
+                                        self.elo_role_maps[key]
+                                    ),
+                                    reason="Automatically added at the "
+                                    "end of a match.",
                                 )
                             break
 

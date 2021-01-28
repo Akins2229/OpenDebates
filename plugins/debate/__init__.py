@@ -1,6 +1,5 @@
 from plugins.debate.layout import ServerSetup
 
-
 plugin_data = {"name": "Debate Plugins", "database": True}
 
 

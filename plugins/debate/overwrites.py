@@ -1,6 +1,5 @@
 from discord import PermissionOverwrite
 
-
 _staff_team_permissive = PermissionOverwrite(
     create_instant_invite=False,
     manage_channels=True,

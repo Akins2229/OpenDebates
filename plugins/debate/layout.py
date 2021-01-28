@@ -1,17 +1,17 @@
 import asyncio
 
 import discord
-from discord import Permissions, Colour, ChannelType, utils, PermissionOverwrite
+from discord import ChannelType, Colour, PermissionOverwrite, Permissions, utils
 from discord.ext import commands
 from discord.ext.commands import BucketType
 
 from plugins.debate.overwrites import (
-    generate_overwrite,
-    lockdown_permissions,
-    lockdown_debate_member_perms,
-    lockdown_citizen_general_perms,
-    _debate_tc_member_permissions,
     _debate_tc_citizen_permissions,
+    _debate_tc_member_permissions,
+    generate_overwrite,
+    lockdown_citizen_general_perms,
+    lockdown_debate_member_perms,
+    lockdown_permissions,
 )
 from plugins.debate.rooms.interface import DebateRooms
 
@@ -820,7 +820,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                     deafen_members=False,
                     move_members=False,
                     use_voice_activation=False,
-                    manage_permissions=False
+                    manage_permissions=False,
                 )
                 await vc.set_permissions(
                     self.roles["role_citizen"],
@@ -833,7 +833,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                     deafen_members=False,
                     move_members=False,
                     use_voice_activation=False,
-                    manage_permissions=False
+                    manage_permissions=False,
                 )
             else:
                 await vc.set_permissions(
@@ -847,7 +847,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                     deafen_members=False,
                     move_members=False,
                     use_voice_activation=False,
-                    manage_permissions=False
+                    manage_permissions=False,
                 )
                 await vc.set_permissions(
                     self.roles["role_citizen"],
@@ -860,10 +860,10 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                     deafen_members=False,
                     move_members=False,
                     use_voice_activation=False,
-                    manage_permissions=False
+                    manage_permissions=False,
                 )
 
-        await self.bot.cogs['Debate'].lockdown_cancel_all_matches()
+        await self.bot.cogs["Debate"].lockdown_cancel_all_matches()
 
     @commands.has_role("Director")
     @commands.command(
@@ -894,18 +894,14 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             tc = discord.utils.get(
                 ctx.guild.text_channels, name=f"debate-{_channel_num}"
             )
-            await vc.edit(
-                sync_permissions=True
-            )
+            await vc.edit(sync_permissions=True)
             overwrite = PermissionOverwrite(view_channel=False)
             if _channel_num != 1:
                 await vc.set_permissions(
                     self.roles["role_citizen"], overwrite=overwrite
                 )
 
-                await vc.set_permissions(
-                    self.roles["role_member"], overwrite=overwrite
-                )
+                await vc.set_permissions(self.roles["role_member"], overwrite=overwrite)
             await tc.set_permissions(
                 self.roles["role_member"], overwrite=_debate_tc_member_permissions
             )

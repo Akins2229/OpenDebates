@@ -1,0 +1,72 @@
+sudo: false
+language: python
+python:
+  - "3.8"
+cache: pip
+env:
+  global:
+    - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
+    - SEGFAULT_SIGNALS=all
+matrix:
+  fast_finish: true
+  include:
+    - python: '3.7'
+      dist: xenial
+      env:
+        - TOXENV=check,docs
+    - python: '3.8'
+      dist: xenial
+      env:
+        - TOXENV=check,docs
+    - python: '3.8-dev'
+      dist: xenial
+      env:
+        - TOXENV=check,docs
+    - python: 'nightly'
+      dist: xenial
+      env:
+        - TOXENV=check,docs
+  allow_failures:
+    - python: 3.8-dev
+    - python: nightly
+os:
+- linux
+git:
+  depth: 3
+branches:
+  only:
+  - "/.*/"
+before_install:
+  - python --version
+  - uname -a
+  - lsb_release -a
+install:
+  - pip install --upgrade pip
+  - pip install codecov tox
+  - pip install .[TESTS]
+script:
+  - tox -v
+after_success:
+  - codecov
+after_failure:
+  - more .tox/log/* | cat
+  - more .tox/*/log/* | cat
+before_deploy:
+  - python setup.py sdist bdist_wheel
+deploy:
+  - provider: pypi
+    user: __token__
+    password:
+        secure: test
+    skip_existing: true
+    distributions: "sdist bdist_wheel"
+    on:
+      tags: true
+      branch: master
+  - provider: releases
+    api_key:
+        secure: test
+    file: dist/*
+    skip_cleanup: true
+    on:
+      tags: true
