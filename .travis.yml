@@ -1,30 +1,30 @@
 sudo: false
 language: python
 python:
-  - "3.8"
+- '3.8'
 cache: pip
 env:
   global:
-    - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
-    - SEGFAULT_SIGNALS=all
+  - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
+  - SEGFAULT_SIGNALS=all
 matrix:
   fast_finish: true
   include:
-    - python: '3.8'
-      dist: xenial
-      env:
-        - TOXENV=check,docs
-    - python: '3.8-dev'
-      dist: xenial
-      env:
-        - TOXENV=check,docs
-    - python: 'nightly'
-      dist: xenial
-      env:
-        - TOXENV=check,docs
+  - python: '3.8'
+    dist: xenial
+    env:
+    - TOXENV=check,docs
+  - python: 3.8-dev
+    dist: xenial
+    env:
+    - TOXENV=check,docs
+  - python: nightly
+    dist: xenial
+    env:
+    - TOXENV=check,docs
   allow_failures:
-    - python: 3.8-dev
-    - python: nightly
+  - python: 3.8-dev
+  - python: nightly
 os:
 - linux
 git:
@@ -33,29 +33,29 @@ branches:
   only:
   - "/.*/"
 before_install:
-  - python --version
-  - uname -a
-  - lsb_release -a
+- python --version
+- uname -a
+- lsb_release -a
 install:
-  - pip install --upgrade pip
-  - pip install codecov tox
-  - pip install .[TESTS]
+- pip install --upgrade pip
+- pip install codecov tox
+- pip install .[TESTS]
 script:
-  - tox -v
+- tox -v
 after_success:
-  - codecov
+- codecov
 after_failure:
-  - more .tox/log/* | cat
-  - more .tox/*/log/* | cat
+- more .tox/log/* | cat
+- more .tox/*/log/* | cat
 before_deploy:
-  - python setup.py sdist bdist_wheel
+- python setup.py sdist bdist_wheel
 deploy:
   - provider: pypi
     user: __token__
     password:
-        secure: "P7SR73Gjk28++rEe9GvGn11GxAOdNnPLqZlih5S8WVIQ85xXlVU4h75oGzrO8eHRVzYVGBK0VeYGp9PDUS87sfg8BV6q+SVPVT4FAmpbH8qb0xYIy0xxiivdMUroZDqg8lqx1ElB+NnbyTfdZfWyuyO+/daiBvBXCZQAGi3+CVfP/XxGswG37wuEKNS1Sg7FotLG9SY4dlobwyub04SNBf5+q9Px6x1ixTYSi/CbYA+i5PoN0KRfWfcuy7lmkXf2QlztD3/tkjU+sfIk+M8AG6Oi+7g+oqCYZJE4kIXY/NSY53TugvarXoCpQipco4Ag57nxJJYRy+L5uavEDRRNy5D7uJiRrNE9TydylLHQUKQId29xEd1Ty9ljZdGvr50qlmjQ51F+S4sHNHOeHAa602bXOrzF90SWQ+3evowGLTXyNYETshdnyTEP2mPM5EzGBiL5lNTfG1b6qkZhHMrRXndGzEJtRkRIlbJwSswlX4h3ozNKlTkaa1+Q3qQh35JfHuHTqsskIUN8jr0Li/PoyTKOGeEcWswVA1OswGCpsotE1FYR7CXIR6/HTn5Z2aMSuQRQ/0dTGJM/lyybhEcFJflFMFAyPCMyCs2jPLJ7oRnwqGx5UsjmCn1XCVRFKVNFZL8N90DNQpd2TpvnZlhpUxImmTxwhJT7RlZ8mgA6J6g="
+        secure: QVYw7BTWhbHbvuZ/R5SnylESXDbQ4Si8r3FKkVCE2eaLTxrsH95eSINC+cc2BZflWr/3nBpPt3HpKDQOHsMS3fjXO/eIr+YCuLW6RMlJWP/pmLouR4Yj1MG5M0SR4uB9prn57kK/4f/+vaCK8bTI+5VC87JKWvJFYR5XqyoSzzJVzRecIXdGzZ8bm2UEKPCXdhikLOKiv7znrt5lRP3W2Wfnf0E0L/M5GAsUcJjv3iuQQZSRXb7/+wvOtf228ArFz4IlqTMDg14x+yE0uxBb6YuGbo6yvrpknEWGg13cPQFJEvsNRXQCfDDchT9v45X6Sbse0/6fzIS+aDl1fU/88hHqucZSLuSV0Ta3gD01Ov5tpQ2hKGmnJyqPlvcVkmVUebAngvnaGu1hc9pewiMq+8ZKyVXXdkPsj762wAlgBWWLAaIsJlbrDCbI3eBrq6Qmw/7Ve1HVi4wAKSod3S8q9rc5ri+xPpzm4ix7sXI4f5/0JuxcRuQh/v9EnA4AQ/BEnNPADUWd/4YaCCHvhdP6d2a4iwoFa0CtyJlGg9fZwOnZVJqBF8fsMuH0w0lO6rabthrD0b2ZxuqWmombBp7GsGTxPdWaqECy8oF15t7hX+EXwMyvacUxhpEukLuK1NykJP4Q6p1AhkOQvSs3o+tqkhsthaVDn8wsyVBN033UL9w=
     skip_existing: true
-    distributions: "sdist bdist_wheel"
+    distributions: sdist bdist_wheel
     on:
       tags: true
       branch: master
