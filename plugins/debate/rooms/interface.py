@@ -198,9 +198,6 @@ class DebateRooms(commands.Cog, name="Debate"):
             try:
                 await im_del.delete()
             except discord.errors.NotFound as e_info:
-                self.bot.logger.debug(
-                    f"Interface message {room_num} could not be deleted!"
-                )
                 return
 
     @commands.Cog.listener()
@@ -264,15 +261,19 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed.add_field(name="**Topic**:", value=f"{topic}")
             await self.interface_messages[index].edit(embed=embed)
 
-    async def resend_im(self, room_num):
+    async def update_im(self, room_num):
         index = room_num - 1
-        im_del = self.interface_messages[index]
+        im = self.interface_messages[index]
+        embed = self.get_embed_message(room_num)
+        topic = self.get_room(room_num).current_topic()
+        if topic:
+            embed.add_field(
+                name="**Topic**: ", value=f"{self.get_room(room_num).current_topic()}"
+            )
         try:
-            await im_del.delete()
+            await im.edit(embed=embed)
         except discord.errors.NotFound as e_info:
             return
-        im = await self.send_embed_message(room_num)
-
 
     def check_in_debate(self, ctx):
         """Check if someone is in the corresponding TextChannel or
@@ -289,13 +290,6 @@ class DebateRooms(commands.Cog, name="Debate"):
         return vc == author_vc
 
     async def conclude_debate(self, room, debaters):
-        embed = discord.Embed(
-            title="⏸ Debate concluding..",
-            description="ELO ratings are being updated. "
-            "Debate specific commands will not run.",
-        )
-        await room.tc.send(embed=embed, delete_after=60)
-
         for debater in debaters:
             # Mute
             if debater.member in room.vc.members:
@@ -304,9 +298,18 @@ class DebateRooms(commands.Cog, name="Debate"):
         for debater in debaters:
             await room.vc.set_permissions(debater.member, overwrite=None)
 
+        embed = discord.Embed(
+            title="⏸ Debate concluding..",
+            description="ELO ratings are being updated. "
+                        "Debate specific commands will not run.",
+        )
+
         check_voters = room.match.check_voters()
         if not check_voters:
             debaters = []
+
+        if debaters:
+            await room.tc.send(embed=embed, delete_after=60)
 
         for debater in debaters:
             await self.db.upsert(debater.member, elo=debater.elo_post)
@@ -324,17 +327,21 @@ class DebateRooms(commands.Cog, name="Debate"):
             await debate_feed.send(embed=embed)
 
             for key, val in self.elo_role_maps.items():
-                await debater.member.remove_roles(
-                    debater.member.guild.get_role(self.elo_role_maps[key]),
-                    reason="Automatically removed at end of match.",
-                )
+                guild  = room.vc.guild
+                if guild.get_member(debater):
+                    await debater.member.remove_roles(
+                        debater.member.guild.get_role(self.elo_role_maps[key]),
+                        reason="Automatically removed at end of match.",
+                    )
 
             for key, val in self.elo_role_maps.items():
                 if key < debater.elo_post:
-                    await debater.member.add_roles(
-                        debater.member.guild.get_role(self.elo_role_maps[key]),
-                        reason="Automatically added at the " "end of a match.",
-                    )
+                    guild = room.vc.guild
+                    if guild.get_member(debater):
+                        await debater.member.add_roles(
+                            debater.member.guild.get_role(self.elo_role_maps[key]),
+                            reason="Automatically added at the end of a match.",
+                        )
                     break
 
         embed = discord.Embed(
@@ -343,10 +350,11 @@ class DebateRooms(commands.Cog, name="Debate"):
         )
         if not check_voters:
             embed.description = (
-                "ELO ratings have not been updated due to lack of " "voters."
+                "ELO ratings have not been updated due to lack of voters."
             )
         room.match = None  # Clear match
-        await room.tc.send(embed=embed)
+        if debaters:
+            await room.tc.send(embed=embed)
 
     async def update_topic(self, room):
         """Update topic of room from current topic."""
@@ -361,7 +369,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         if current_topic is not None:
             if not match:
                 room.start_match(current_topic)
-                await self.resend_im(room.number)
+                await self.update_im(room.number)
             else:
                 for member in room.vc.members:
                     await room.vc.set_permissions(member, overwrite=None)
@@ -402,7 +410,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
                 current_topic = room.current_topic()
                 room.start_match(current_topic)
-                await self.resend_im(room.number)
+                await self.update_im(room.number)
                 for member in room.vc.members:
                     await member.edit(mute=True)
 
@@ -536,6 +544,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             self.logger.debug(f"{member} joined: {after.channel}")
             room_after = self.get_room(self.get_room_number(after.channel))
             room_after.add_topic_voter(member)
+            room_after.reset_topic_creation(member)
 
             if room_after.match:
                 participant = room_after.match.get_participant(member)
@@ -550,7 +559,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             await member.edit(mute=True)
 
         async def leave_room():
-            self.logger.debug(f"{member} left {before.channel}")
+            self.logger.debug(f"{member} left: {before.channel}")
             room_before = self.get_room(self.get_room_number(before.channel))
             room_before.remove_topic_voter(member)
             room_before.remove_priority_from_topic(member)
@@ -592,11 +601,15 @@ class DebateRooms(commands.Cog, name="Debate"):
             tc_before = self.get_tc_from_vc(before.channel)
             await tc_before.set_permissions(member, overwrite=None)
 
+            # Delete if not working
+            await self.update_topic(room_before)
+
         async def switch_room():
             # Join Room
             self.logger.debug(f"{member} joined: {after.channel}")
             room_after = self.get_room(self.get_room_number(after.channel))
             room_after.add_topic_voter(member)
+            room_after.reset_topic_creation(member)
 
             # Make linked text chat visible
             tc_after = self.get_tc_from_vc(after.channel)
@@ -604,7 +617,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             await tc_after.set_permissions(member, overwrite=overwrite)
 
             # Leave Room
-            self.logger.debug(f"{member} left {before.channel}")
+            self.logger.debug(f"{member} left: {before.channel}")
             room_before = self.get_room(self.get_room_number(before.channel))
             room_before.remove_topic_voter(member)
             room_before.remove_priority_from_topic(member)
@@ -650,6 +663,9 @@ class DebateRooms(commands.Cog, name="Debate"):
 
             # Mute User
             await member.edit(mute=True)
+
+            # Delete if not working
+            await self.update_topic(room_before)
 
         # If member joins a debate room
         if before.channel is None and after.channel in dr_vcs:
@@ -1230,18 +1246,22 @@ class DebateRooms(commands.Cog, name="Debate"):
 
                     # Remove ELO roles
                     for key, val in self.elo_role_maps.items():
-                        await debater.member.remove_roles(
-                            debater.member.guild.get_role(self.elo_role_maps[key]),
-                            reason="Automatically removed at end of match.",
-                        )
+                        guild = room.vc.guild
+                        if guild.get_member(debater):
+                            await debater.member.remove_roles(
+                                debater.member.guild.get_role(self.elo_role_maps[key]),
+                                reason="Automatically removed at end of match.",
+                            )
 
                     # Add ELO roles
                     for key, val in self.elo_role_maps.items():
                         if key < debater.elo_post:
-                            await debater.member.add_roles(
-                                debater.member.guild.get_role(self.elo_role_maps[key]),
-                                reason="Automatically added at the " "end of a match.",
-                            )
+                            guild = room.vc.guild
+                            if guild.get_member(debater):
+                                await debater.member.add_roles(
+                                    debater.member.guild.get_role(self.elo_role_maps[key]),
+                                    reason="Automatically added at the " "end of a match.",
+                                )
                             break
 
             # Update topic

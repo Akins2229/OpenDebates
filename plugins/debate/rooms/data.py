@@ -349,6 +349,14 @@ class DebateRoom:
                 final_topics.append(topic)
         return final_topics
 
+    def reset_topic_creation(self, author: discord.Member):
+        """Reset when a topic was a created. Useful for when a member leaves and
+        rejoins a room.
+        """
+        topic = self.topic_from_member(author)
+        if topic:
+            topic.created_at = datetime.datetime.utcnow()
+
     def update_prioritized_topic(self) -> bool:
         """Updates the oldest topic to current topic"""
         if len(self.topics) == 0:
