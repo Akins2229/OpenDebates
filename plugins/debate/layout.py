@@ -291,7 +291,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             name="Muted", permissions=Permissions(permissions=1115136), hoist=False
         )
 
-        self.role_muted = await guild.create_role(
+        self.role_super_muted = await guild.create_role(
             name="Super Muted", permissions=Permissions(permissions=0), hoist=False
         )
 
