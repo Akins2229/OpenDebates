@@ -527,6 +527,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _read_only_permissions,
         "role_muted": _read_only_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": PermissionOverwrite(
             create_instant_invite=False,
             manage_channels=False,
@@ -562,6 +563,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _no_permissions,
         "role_muted": _no_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _read_and_send_only,
     },
     "community_updates": {
@@ -573,6 +575,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _no_permissions,
         "role_muted": _no_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
     "moderation": {
@@ -584,6 +587,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _no_permissions,
         "role_muted": _no_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
     "director_commands": {
@@ -595,6 +599,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _no_permissions,
         "role_muted": _no_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
     "isolation": {
@@ -606,6 +611,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _read_and_send_only,
         "role_muted": _no_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
     "interface": {
@@ -617,6 +623,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _no_permissions,
         "role_muted": _read_only_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
     "commands": {
@@ -628,6 +635,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _no_permissions,
         "role_muted": _read_only_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
     "community": {
@@ -639,6 +647,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _no_permissions,
         "role_muted": _read_only_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
     "debate": {
@@ -650,6 +659,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _no_permissions,
         "role_muted": _muted_read_only_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
     "debate-#": {
@@ -661,6 +671,7 @@ all_channel_overwrites = {
         "role_logs": _no_permissions,
         "role_detained": _no_permissions,
         "role_muted": _no_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
     "logs": {
@@ -672,6 +683,7 @@ all_channel_overwrites = {
         "role_logs": _read_only_permissions,
         "role_detained": _no_permissions,
         "role_muted": _no_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": _no_permissions,
     },
 }
@@ -699,5 +711,6 @@ def generate_overwrite(ctx, roles, channel: str):
         roles["role_logs"]: overwrites["role_logs"],
         roles["role_detained"]: overwrites["role_detained"],
         roles["role_muted"]: overwrites["role_muted"],
+        roles["role_super_muted"]: overwrites["role_super_muted"],
         ctx.guild.default_role: overwrites["role_everyone"],
     }
