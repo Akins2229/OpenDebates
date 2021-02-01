@@ -85,7 +85,7 @@ _read_only_permissions = PermissionOverwrite(
     priority_speaker=False,
     stream=False,
     read_messages=None,
-    view_channel=True,
+    view_channel=None,
     send_messages=False,
     send_tts_messages=False,
     manage_messages=False,
@@ -554,6 +554,18 @@ all_channel_overwrites = {
         "role_detained": _read_only_permissions,
         "role_muted": _read_only_permissions,
         "role_super_muted": _no_permissions,
+        "role_everyone": _neutral_permissions
+    },
+    "verification": {
+        "role_warden": _staff_team_permissive,
+        "role_director": _staff_team_read_only,
+        "role_moderator": _no_permissions,
+        "role_citizen": _no_permissions,
+        "role_member": _no_permissions,
+        "role_logs": _no_permissions,
+        "role_detained": _no_permissions,
+        "role_muted": _no_permissions,
+        "role_super_muted": _no_permissions,
         "role_everyone": PermissionOverwrite(
             create_instant_invite=False,
             manage_channels=False,
@@ -579,18 +591,6 @@ all_channel_overwrites = {
             manage_permissions=False,
             manage_webhooks=False,
         ),
-    },
-    "verification": {
-        "role_warden": _staff_team_permissive,
-        "role_director": _staff_team_read_only,
-        "role_moderator": _no_permissions,
-        "role_citizen": _no_permissions,
-        "role_member": _no_permissions,
-        "role_logs": _no_permissions,
-        "role_detained": _no_permissions,
-        "role_muted": _no_permissions,
-        "role_super_muted": _no_permissions,
-        "role_everyone": _read_only_permissions,
     },
     "community_updates": {
         "role_warden": _staff_team_permissive,
@@ -650,7 +650,7 @@ all_channel_overwrites = {
         "role_detained": _no_permissions,
         "role_muted": _read_only_permissions,
         "role_super_muted": _no_permissions,
-        "role_everyone": _no_permissions,
+        "role_everyone": _neutral_permissions,
     },
     "commands": {
         "role_warden": _staff_team_permissive,
@@ -662,7 +662,7 @@ all_channel_overwrites = {
         "role_detained": _no_permissions,
         "role_muted": _read_only_permissions,
         "role_super_muted": _no_permissions,
-        "role_everyone": _no_permissions,
+        "role_everyone": _neutral_permissions,
     },
     "community": {
         "role_warden": _staff_team_permissive,
@@ -674,7 +674,7 @@ all_channel_overwrites = {
         "role_detained": _no_permissions,
         "role_muted": _read_only_permissions,
         "role_super_muted": _no_permissions,
-        "role_everyone": _no_permissions,
+        "role_everyone": _neutral_permissions,
     },
     "debate": {
         "role_warden": _staff_team_permissive,
@@ -686,7 +686,7 @@ all_channel_overwrites = {
         "role_detained": _no_permissions,
         "role_muted": _muted_read_only_permissions,
         "role_super_muted": _no_permissions,
-        "role_everyone": _no_permissions,
+        "role_everyone": _neutral_permissions,
     },
     "debate-#": {
         "role_warden": _staff_team_permissive,
