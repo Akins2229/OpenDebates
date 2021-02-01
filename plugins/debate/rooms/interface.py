@@ -64,6 +64,10 @@ def disabled_while_concluding():
     def predicate(ctx):
         room_number = ctx.cog.get_room_number(ctx.channel)
         room = ctx.cog.get_room(room_number)
+
+        if room is None:
+            return True
+
         if room.match is None:
             return True
 
