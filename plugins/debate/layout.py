@@ -71,7 +71,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             "role_logs": self.role_logs,
             "role_detained": self.role_detained,
             "role_muted": self.role_muted,
-            "role_super_muted": self.role_super_muted
+            "role_super_muted": self.role_super_muted,
         }
 
         # Channels
@@ -292,8 +292,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         )
 
         self.role_muted = await guild.create_role(
-            name="Super Muted", permissions=Permissions(permissions=0),
-            hoist=False
+            name="Super Muted", permissions=Permissions(permissions=0), hoist=False
         )
 
         # Update Database
@@ -321,7 +320,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             role_logs=self.role_logs.id,
             role_detained=self.role_detained.id,
             role_muted=self.role_muted.id,
-            role_super_muted=self.role_super_muted.id
+            role_super_muted=self.role_super_muted.id,
         )
 
         # Confirm database has been updated.

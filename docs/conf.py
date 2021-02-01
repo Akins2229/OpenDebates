@@ -79,7 +79,7 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
-    "sphinx_autorun"
+    "sphinx_autorun",
 ]
 
 # Show todos
@@ -99,7 +99,9 @@ master_doc = "index"
 
 # General information about the project.
 project = u"Open Debates"
-copyright = u"2020 - " + str(datetime.datetime.now().year) + u", Open Debates Contributors"
+copyright = (
+    u"2020 - " + str(datetime.datetime.now().year) + u", Open Debates Contributors"
+)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -161,11 +163,11 @@ except ImportError:
     html_theme = "classic"
 
 html_context = {
-  'discord_invite': 'https://discord.gg/r3sSKJJ',
-  'discord_extensions': [
-    ('discord.ext.commands', 'ext/commands'),
-    ('discord.ext.tasks', 'ext/tasks'),
-  ],
+    "discord_invite": "https://discord.gg/r3sSKJJ",
+    "discord_extensions": [
+        ("discord.ext.commands", "ext/commands"),
+        ("discord.ext.tasks", "ext/tasks"),
+    ],
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -268,9 +270,13 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", u"Open Debates Documentation", u"Open Debates "
-                                                               u"Contributors",
-     "manual"),
+    (
+        "index",
+        "user_guide.tex",
+        u"Open Debates Documentation",
+        u"Open Debates " u"Contributors",
+        "manual",
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -306,5 +312,5 @@ python_version = ".".join(map(str, sys.version_info[0:2]))
 intersphinx_mapping = {
     "sphinx": ("http://www.sphinx-doc.org/en/stable", None),
     "python": ("https://docs.python.org/" + python_version, None),
-    "discord": ("https://discordpy.readthedocs.io/en/latest/", None)
+    "discord": ("https://discordpy.readthedocs.io/en/latest/", None),
 }
