@@ -260,7 +260,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         )
 
         self.role_bot = await guild.create_role(
-            name="Bot", permissions=Permissions(permissions=36768832), hoist=True
+            name="Bot", permissions=Permissions(permissions=0), hoist=True
         )
         await ctx.me.add_roles(self.role_bot)
 
@@ -275,20 +275,20 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         # Setup Miscellaneous Roles
         self.role_events = await guild.create_role(
-            name="Events", permissions=Permissions(permissions=36768832), hoist=False
+            name="Events", permissions=Permissions(permissions=0), hoist=False
         )
 
         self.role_logs = await guild.create_role(
-            name="Logs", permissions=Permissions(permissions=36768832), hoist=False
+            name="Logs", permissions=Permissions(permissions=0), hoist=False
         )
 
         # Setup Punishment Roles
         self.role_detained = await guild.create_role(
-            name="Detained", permissions=Permissions(permissions=36768832), hoist=False
+            name="Detained", permissions=Permissions(permissions=0), hoist=False
         )
 
         self.role_muted = await guild.create_role(
-            name="Muted", permissions=Permissions(permissions=1115136), hoist=False
+            name="Muted", permissions=Permissions(permissions=0), hoist=False
         )
 
         self.role_super_muted = await guild.create_role(
