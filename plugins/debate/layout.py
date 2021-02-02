@@ -175,7 +175,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         # Setup Power Roles
         self.role_everyone = guild.default_role
-        await self.role_everyone.edit(permissions=Permissions(permissions=36768832))
+        await self.role_everyone.edit(permissions=Permissions(permissions=0))
 
         self.role_warden = await guild.create_role(
             name="Warden",
