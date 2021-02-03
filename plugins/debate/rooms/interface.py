@@ -386,7 +386,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                     for debater in debaters:
                         # Remove overwrite from VC and mute
                         await room.vc.set_permissions(debater.member, overwrite=None)
-                        await debater.member.edit(mute=True)
+                        if debater.member in room.vc.members:
+                            await debater.member.edit(mute=True)
                     return
 
                 debaters = []
@@ -397,7 +398,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                     for debater in debaters:
                         # Remove overwrite from VC and mute
                         await room.vc.set_permissions(debater.member, overwrite=None)
-                        await debater.member.edit(mute=True)
+                        if debater.member in room.vc.members:
+                            await debater.member.edit(mute=True)
 
                     match.concluding = True
                     await self.conclude_debate(room, debaters)
