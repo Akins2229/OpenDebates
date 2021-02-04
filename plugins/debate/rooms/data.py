@@ -287,6 +287,7 @@ class DebateRoom:
         self._topic_voters: List[discord.Member] = []
         self.match: Optional[DebateMatch] = None
         self._conclude_voters: List[discord.Member] = []
+        self.current_topic: Optional[Topic] = None
 
         # Debate
         self._participants: List[Participant] = []
@@ -415,16 +416,42 @@ class DebateRoom:
         ]
         return max_voted_topics
 
-    def current_topic(self) -> Optional[Topic]:
-        """Get the current topic that is the most voted."""
+    def set_current_topic(self) -> bool:
+        """Set the current topic.
+
+        Returns
+        -------
+        True
+            Topic was changed or updated on setting topic.
+        False
+            Topic was the same and caused no change to current topic.
+        """
         self.update_prioritized_topic()
         max_voted_topics = self._calculate_max_voted_topics()
         for topic in max_voted_topics:
             if topic.prioritized:
-                return topic
+                if self.current_topic == topic:
+                    self.current_topic = topic
+                    return False
+                else:
+                    self.current_topic = topic
+                    return True
 
         if len(max_voted_topics) == 1:
-            return max_voted_topics[0]
+            if self.current_topic == max_voted_topics[0]:
+                self.current_topic = max_voted_topics[0]
+                return False
+            else:
+                self.current_topic = max_voted_topics[0]
+                return True
+
+        self.current_topic = None
+
+    def topic_updated(self) -> bool:
+        if self.current_topic == self.set_current_topic():
+            return True
+        else:
+            return False
 
     def vote_topic(self, voter: discord.Member, candidate: discord.Member):
         """Increment a vote on a topic."""

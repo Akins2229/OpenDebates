@@ -243,10 +243,11 @@ class DebateRooms(commands.Cog, name="Debate"):
     async def send_embed_message(self, room_num):
         embed = self.get_embed_message(room_num)
 
-        topic = self.get_room(room_num).current_topic()
-        if topic:
+        topic_updated = self.get_room(room_num).set_current_topic()
+        current_topic = self.get_room(room_num).current_topic
+        if current_topic:
             embed.add_field(
-                name="**Topic**: ", value=f"{self.get_room(room_num).current_topic()}"
+                name="**Topic**: ", value=f"{current_topic}"
             )
         text_channel = self.bot.get_channel(list(self.debate_room_tcs)[room_num - 1].id)
         message = await text_channel.send(embed=embed)
@@ -258,21 +259,14 @@ class DebateRooms(commands.Cog, name="Debate"):
         self.interface_messages[index] = im_add
         return self.interface_messages
 
-    async def edit_im_topic(self, room_num, topic):
-        index = room_num - 1
-        embed = self.get_embed_message(room_num)
-        if topic != "[No Topic Set]":
-            embed.add_field(name="**Topic**:", value=f"{topic}")
-            await self.interface_messages[index].edit(embed=embed)
-
     async def update_im(self, room_num):
         index = room_num - 1
         im = self.interface_messages[index]
         embed = self.get_embed_message(room_num)
-        topic = self.get_room(room_num).current_topic()
+        topic = self.get_room(room_num).current_topic
         if topic:
             embed.add_field(
-                name="**Topic**: ", value=f"{self.get_room(room_num).current_topic()}"
+                name="**Topic**: ", value=f"{self.get_room(room_num).current_topic}"
             )
         try:
             await im.edit(embed=embed)
@@ -363,24 +357,34 @@ class DebateRooms(commands.Cog, name="Debate"):
     async def update_topic(self, room):
         """Update topic of room from current topic."""
         if len(room.vc.members) == 0:
-            current_topic = "[No Topic Set]"
+            current_topic = None
+            topic_updated = False
         else:
-            current_topic = room.current_topic()
+            topic_updated = room.set_current_topic()
+            current_topic = room.current_topic
 
         match = room.match
 
         self.logger.debug(f"Topics: {room.topics}")
         if current_topic is not None:
             if not match:
+                topic_updated = room.set_current_topic()
+                current_topic = room.current_topic
                 room.start_match(current_topic)
                 await self.update_im(room.number)
             else:
                 for member in room.vc.members:
                     await room.vc.set_permissions(member, overwrite=None)
 
+                if not room.match:
+                    return
+
                 # Do nothing if there are no voters
                 if not room.match.check_voters():
                     debaters = room.match.get_debaters()
+
+                    if not topic_updated:
+                        return
 
                     # Mute debaters early
                     for debater in debaters:
@@ -390,31 +394,37 @@ class DebateRooms(commands.Cog, name="Debate"):
                             await debater.member.edit(mute=True)
                     return
 
+
                 debaters = []
                 if match.concluding is False and match.concluded is False:
-                    debaters = room.stop_match()
+                    if topic_updated:
 
-                    # Mute debaters early
-                    for debater in debaters:
-                        # Remove overwrite from VC and mute
-                        await room.vc.set_permissions(debater.member, overwrite=None)
-                        if debater.member in room.vc.members:
-                            await debater.member.edit(mute=True)
+                        debaters = room.stop_match()
 
-                    match.concluding = True
-                    await self.conclude_debate(room, debaters)
-                    match.concluding = False
-                    match.concluded = True
+                        # Mute debaters early
+                        for debater in debaters:
+                            # Remove overwrite from VC and mute
+                            await room.vc.set_permissions(debater.member, overwrite=None)
+                            if debater.member in room.vc.members:
+                                await debater.member.edit(mute=True)
+
+                        match.concluding = True
+                        await self.conclude_debate(room, debaters)
+                        match.concluding = False
+                        match.concluded = True
                 elif match.concluding is False and match.concluded is True:
                     return
                 elif match.concluding is True and match.concluded is False:
                     return
 
-                current_topic = room.current_topic()
+                topic_updated = room.set_current_topic()
+                current_topic = room.current_topic
                 room.start_match(current_topic)
                 await self.update_im(room.number)
                 for member in room.vc.members:
                     await member.edit(mute=True)
+
+        await self.update_im(room.number)
 
     @only_debate_channels()
     @disabled_while_concluding()
@@ -733,7 +743,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             if member:
                 topic = room.topic_from_member(member)
             else:
-                topic = room.current_topic()
+                topic = room.current_topic
             if room.match:
                 if topic == room.match.topic:
                     for current_member in room.vc.members:
@@ -741,7 +751,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             if member:
                 room.remove_topic(member)
             else:
-                room.remove_topic(room.current_topic().author)
+                room.remove_topic(room.current_topic.author)
             room.match = None  # Clear match
             await self.update_topic(room)
 
@@ -1270,16 +1280,16 @@ class DebateRooms(commands.Cog, name="Debate"):
                             break
 
             # Update topic
-            current_topic = room.current_topic()
+            current_topic = room.current_topic
             if current_topic:
-                await self.edit_im_topic(
-                    self.get_room_number(room.tc), str(current_topic)
+                await self.update_im(
+                    self.get_room_number(room.tc)
                 )
                 room.remove_topic(current_topic.author)
                 room.vote_topic(current_topic.author, current_topic.author)
             else:
-                await self.edit_im_topic(
-                    self.get_room_number(room.tc), "[No Topic Set]"
+                await self.update_im(
+                    self.get_room_number(room.tc)
                 )
 
             # Remove voters from data set
