@@ -246,9 +246,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         topic_updated = self.get_room(room_num).set_current_topic()
         current_topic = self.get_room(room_num).current_topic
         if current_topic:
-            embed.add_field(
-                name="**Topic**: ", value=f"{current_topic}"
-            )
+            embed.add_field(name="**Topic**: ", value=f"{current_topic}")
         text_channel = self.bot.get_channel(list(self.debate_room_tcs)[room_num - 1].id)
         message = await text_channel.send(embed=embed)
         return message
@@ -394,7 +392,6 @@ class DebateRooms(commands.Cog, name="Debate"):
                             await debater.member.edit(mute=True)
                     return
 
-
                 debaters = []
                 if match.concluding is False and match.concluded is False:
                     if topic_updated:
@@ -404,7 +401,9 @@ class DebateRooms(commands.Cog, name="Debate"):
                         # Mute debaters early
                         for debater in debaters:
                             # Remove overwrite from VC and mute
-                            await room.vc.set_permissions(debater.member, overwrite=None)
+                            await room.vc.set_permissions(
+                                debater.member, overwrite=None
+                            )
                             if debater.member in room.vc.members:
                                 await debater.member.edit(mute=True)
 
@@ -1282,15 +1281,11 @@ class DebateRooms(commands.Cog, name="Debate"):
             # Update topic
             current_topic = room.current_topic
             if current_topic:
-                await self.update_im(
-                    self.get_room_number(room.tc)
-                )
+                await self.update_im(self.get_room_number(room.tc))
                 room.remove_topic(current_topic.author)
                 room.vote_topic(current_topic.author, current_topic.author)
             else:
-                await self.update_im(
-                    self.get_room_number(room.tc)
-                )
+                await self.update_im(self.get_room_number(room.tc))
 
             # Remove voters from data set
             room.remove_conclude_voters()
