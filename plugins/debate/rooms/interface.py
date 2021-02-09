@@ -453,7 +453,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         else:
             if len(str(message)) > 1024:
                 embed = discord.Embed(title="❌ Topic is longer than 1024 characters! ❌")
-                await ctx.channel.send(embed=embed, delete_after=5)
+                await ctx.channel.send(embed=embed, delete_after=20)
                 return
             else:
                 topic_updated = room.add_topic(
@@ -467,7 +467,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                         title="⚠️ Votes on your topic have been reset "
                         "because you updated it! ⚠️"
                     )
-                    await ctx.channel.send(embed=embed, delete_after=5)
+                    await ctx.channel.send(embed=embed, delete_after=10)
         await self.update_topic(room)
 
     async def make_vc_visible(self, vc):
@@ -635,8 +635,6 @@ class DebateRooms(commands.Cog, name="Debate"):
             room_before.remove_topic_voter(member)
             room_before.remove_priority_from_topic(member)
             room_before.remove_obsolete_topic(member)
-            # if room_before.match and not room_before.match.check_debater(member):
-            #     room_before.match.remove_participant(member)
 
             active_debaters = []
             if room_before.match:
@@ -799,7 +797,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         response = discord.Embed(
             color=0x77B255, title="✅ All ELO scores have been reset."
         )
-        await message.edit(embed=response, delete_after=5)
+        await message.edit(embed=response, delete_after=10)
 
     @commands.has_role("Engineering")
     @commands.command(
@@ -846,9 +844,9 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         response = discord.Embed(
             color=0x77B255,
-            title="✅ ELO ratings have been setup and roles " "have been assigned.",
+            title="✅ ELO ratings have been setup and roles have been assigned.",
         )
-        await message.edit(embed=response, delete_after=5)
+        await message.edit(embed=response, delete_after=10)
 
     @commands.has_role("Engineering")
     @commands.command(
@@ -960,7 +958,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate running right now. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         elo = await self.db.get(ctx.author, state="elo")
@@ -972,7 +970,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         )
 
         embed = discord.Embed(title="✅ You are now for the position.")
-        await ctx.send(embed=embed, delete_after=5)
+        await ctx.send(embed=embed, delete_after=10)
 
     @only_debate_channels()
     @disabled_while_concluding()
@@ -991,7 +989,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate match in progress. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         elo = await self.db.get(ctx.author, state="elo")
@@ -1003,7 +1001,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         )
 
         embed = discord.Embed(title="✅ You are now against the position.")
-        await ctx.send(embed=embed, delete_after=5)
+        await ctx.send(embed=embed, delete_after=10)
 
     @only_debate_channels()
     @disabled_while_concluding()
@@ -1023,7 +1021,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate match in progress. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         if not room.match.check_participant(ctx.author):
@@ -1033,7 +1031,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                 description="`$for` - For the topic.\n\n"
                 "`$against` - Against the topic.",
             )
-            await ctx.send(embed=embed, delete_after=20)
+            await ctx.send(embed=embed, delete_after=60)
             return
 
         current_session_start = datetime.datetime.utcnow()
@@ -1070,7 +1068,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate running right now. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         elo = await self.db.get(ctx.author, state="elo")
@@ -1083,7 +1081,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate match in progress. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         current_session_start = datetime.datetime.utcnow()
@@ -1094,7 +1092,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         embed = discord.Embed(
             title="✅ You are now a debater for the topic.",
-            description="Your ELO rating is at risk. " "Be mindful of what you say.",
+            description="Your ELO rating is at risk. Be mindful of what you say.",
         )
         await ctx.send(embed=embed, delete_after=20)
         if self.roles["role_muted"] in ctx.author.roles:
@@ -1121,7 +1119,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate match in progress. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         elo = await self.db.get(ctx.author, state="elo")
@@ -1134,7 +1132,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate match in progress. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         current_session_start = datetime.datetime.utcnow()
@@ -1170,12 +1168,12 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate match in progress. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         if member == ctx.author:
             embed = discord.Embed(title="❌ You cannot vote for yourself dummy. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         result = room.match.vote(voter=ctx.author, candidate=member)
@@ -1183,14 +1181,14 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed = discord.Embed(
                 title="❌ You can only vote for debaters if you take a position. ❌"
             )
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
         if result is False:
             embed = discord.Embed(title="❌ You can only vote for debaters. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
         embed = discord.Embed(title="✅ Your vote has been cast.")
-        await ctx.send(embed=embed, delete_after=10)
+        await ctx.send(embed=embed, delete_after=20)
 
     @only_debate_channels()
     @disabled_while_concluding()
@@ -1211,7 +1209,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate match in progress. ❌")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
             return
 
         debaters, concluded, voters = room.vote_conclude(voter=ctx.author)
@@ -1223,7 +1221,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             return
         else:
             embed = discord.Embed(title="✅ Vote to conclude debate cast.")
-            await ctx.send(embed=embed, delete_after=5)
+            await ctx.send(embed=embed, delete_after=10)
 
         if concluded:
             match.concluding = True
