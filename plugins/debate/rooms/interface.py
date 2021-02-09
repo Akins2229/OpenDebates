@@ -946,7 +946,7 @@ class DebateRooms(commands.Cog, name="Debate"):
     @commands.command(
         name="for",
         brief="Set the 'For' position on a topic in a debate room.",
-        help="This command will allow you to vote on debate. You are 'For' "
+        help="This command will allow you to vote on a debate. You are 'For' "
         "the topic.",
     )
     async def command_for(self, ctx):
@@ -977,7 +977,7 @@ class DebateRooms(commands.Cog, name="Debate"):
     @commands.command(
         name="against",
         brief="Set the 'Against' position on a topic in a debate room.",
-        help="This command will allow you to vote on debate. You are 'Against' "
+        help="This command will allow you to vote on a debate. You are 'Against' "
         "the topic.",
     )
     async def against(self, ctx):
@@ -1056,7 +1056,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         name="debate-for",
         aliases=["df"],
         brief="Shortcut to debate for the topic.",
-        help="This command has the same affect taking the 'For' position on a "
+        help="This command has the same affect as taking the 'For' position on a "
         "topic and then starting or joining a debate.",
     )
     async def debate_for(self, ctx):
@@ -1106,7 +1106,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         name="debate-against",
         aliases=["da"],
         brief="Shortcut to debate against the topic.",
-        help="This command has the same affect taking the 'Against' position "
+        help="This command has the same affect as taking the 'Against' position "
         "on a "
         "topic and then starting or joining a debate.",
     )
