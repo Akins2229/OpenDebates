@@ -411,17 +411,17 @@ class DebateRooms(commands.Cog, name="Debate"):
                         await self.conclude_debate(room, debaters)
                         match.concluding = False
                         match.concluded = True
+
+                        topic_updated = room.set_current_topic()
+                        current_topic = room.current_topic
+                        room.start_match(current_topic)
+                        await self.update_im(room.number)
+                        for member in room.vc.members:
+                            await member.edit(mute=True)
                 elif match.concluding is False and match.concluded is True:
                     return
                 elif match.concluding is True and match.concluded is False:
                     return
-
-                topic_updated = room.set_current_topic()
-                current_topic = room.current_topic
-                room.start_match(current_topic)
-                await self.update_im(room.number)
-                for member in room.vc.members:
-                    await member.edit(mute=True)
 
         topic_updated = room.set_current_topic()
         current_topic = room.current_topic
