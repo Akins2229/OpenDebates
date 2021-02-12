@@ -337,6 +337,32 @@ _moderator_general_perms = PermissionOverwrite(
     manage_webhooks=False,
 )
 
+_moderator_debate_perms = PermissionOverwrite(
+    create_instant_invite=False,
+    manage_channels=False,
+    add_reactions=True,
+    priority_speaker=True,
+    stream=True,
+    read_messages=None,
+    view_channel=None,
+    send_messages=True,
+    send_tts_messages=False,
+    manage_messages=True,
+    embed_links=True,
+    attach_files=True,
+    read_message_history=True,
+    mention_everyone=False,
+    external_emojis=True,
+    connect=True,
+    speak=True,
+    mute_members=True,
+    deafen_members=True,
+    move_members=True,
+    use_voice_activation=True,
+    manage_permissions=False,
+    manage_webhooks=False,
+)
+
 
 _senior_mod_general_perms = PermissionOverwrite(
     create_instant_invite=False,
@@ -706,7 +732,7 @@ all_channel_overwrites = {
     "debate": {
         "role_warden": _staff_team_permissive,
         "role_director": _senior_mod_general_perms,
-        "role_moderator": _moderator_general_perms,
+        "role_moderator": _moderator_debate_perms,
         "role_citizen": _neutral_permissions,
         "role_member": _neutral_permissions,
         "role_logs": _neutral_permissions,
@@ -718,7 +744,7 @@ all_channel_overwrites = {
     "debate-#": {
         "role_warden": _staff_team_permissive,
         "role_director": _senior_mod_general_perms,
-        "role_moderator": _moderator_general_perms,
+        "role_moderator": _moderator_debate_perms,
         "role_citizen": _debate_tc_citizen_permissions,
         "role_member": _debate_tc_member_permissions,
         "role_logs": _neutral_permissions,
