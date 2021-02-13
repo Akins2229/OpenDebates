@@ -572,6 +572,32 @@ _neutral_permissions = PermissionOverwrite(
     manage_webhooks=None,
 )
 
+_neutral_debate_category_perms = PermissionOverwrite(
+    create_instant_invite=None,
+    manage_channels=None,
+    add_reactions=None,
+    priority_speaker=None,
+    stream=None,
+    read_messages=True,
+    view_channel=True,
+    send_messages=None,
+    send_tts_messages=None,
+    manage_messages=None,
+    embed_links=None,
+    attach_files=None,
+    read_message_history=None,
+    mention_everyone=None,
+    external_emojis=None,
+    connect=None,
+    speak=None,
+    mute_members=None,
+    deafen_members=None,
+    move_members=None,
+    use_voice_activation=None,
+    manage_permissions=None,
+    manage_webhooks=None,
+)
+
 _neutral_debate_tc_permissions = PermissionOverwrite(
     create_instant_invite=None,
     manage_channels=None,
@@ -759,8 +785,8 @@ all_channel_overwrites = {
         "role_warden": _staff_team_permissive,
         "role_director": _senior_mod_general_perms,
         "role_moderator": _moderator_debate_perms,
-        "role_citizen": _neutral_permissions,
-        "role_member": _neutral_permissions,
+        "role_citizen": _neutral_debate_category_perms,
+        "role_member": _neutral_debate_category_perms,
         "role_logs": _neutral_permissions,
         "role_detained": _no_permissions,
         "role_muted": _muted_read_only_permissions,
