@@ -419,8 +419,14 @@ class DebateRooms(commands.Cog, name="Debate"):
                         for member in room.vc.members:
                             await member.edit(mute=True)
                 elif match.concluding is False and match.concluded is True:
+                    topic_updated = room.set_current_topic()
+                    current_topic = room.current_topic
+                    await self.update_im(room.number)
                     return
                 elif match.concluding is True and match.concluded is False:
+                    topic_updated = room.set_current_topic()
+                    current_topic = room.current_topic
+                    await self.update_im(room.number)
                     return
 
         topic_updated = room.set_current_topic()

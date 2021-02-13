@@ -777,7 +777,7 @@ all_channel_overwrites = {
         "role_detained": _no_permissions,
         "role_muted": _no_permissions,
         "role_super_muted": _no_permissions,
-        "role_everyone": _no_permissions,
+        "role_everyone": _neutral_permissions,
     },
     "logs": {
         "role_warden": _staff_team_permissive,
