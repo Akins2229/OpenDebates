@@ -11,7 +11,8 @@ from plugins.debate.overwrites import (
     generate_overwrite,
     lockdown_citizen_general_perms,
     lockdown_debate_member_perms,
-    lockdown_permissions, _neutral_debate_tc_permissions,
+    lockdown_permissions,
+    _neutral_debate_tc_permissions,
 )
 from plugins.debate.rooms.interface import DebateRooms
 
