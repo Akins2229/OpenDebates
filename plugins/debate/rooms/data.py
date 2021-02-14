@@ -476,7 +476,7 @@ class DebateRoom:
         topic = self.topic_from_member(author)
         if topic is None:
             return
-        if topic.votes == 0 and author not in self.vc.members:
+        if topic.votes == 0:
             self.remove_topic(author)
 
     # Topic Voter Methods
