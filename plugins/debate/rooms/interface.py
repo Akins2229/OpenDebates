@@ -340,6 +340,9 @@ class DebateRooms(commands.Cog, name="Debate"):
                         )
                     break
 
+        # Clear private debaters
+        room.private_debaters = []
+
         embed = discord.Embed(
             title="✅ Debate concluded.",
             description="ELO ratings have been updated.",
@@ -451,6 +454,14 @@ class DebateRooms(commands.Cog, name="Debate"):
         # Exit if not in a debate room
         if not self.check_in_debate(ctx):
             return
+
+        if room.private:
+            if ctx.author not in room.private_debaters:
+                embed = discord.Embed(
+                    title="❌ This is a private debate. You need to be unlocked first. ❌"
+                )
+                await ctx.send(embed=embed, delete_after=10)
+                return
 
         if isinstance(member, Member):
 
@@ -1025,6 +1036,14 @@ class DebateRooms(commands.Cog, name="Debate"):
         if not self.check_in_debate(ctx):
             return
 
+        if room.private:
+            if ctx.author not in room.private_debaters:
+                embed = discord.Embed(
+                    title="❌ This is a private debate. You need to be unlocked first. ❌"
+                )
+                await ctx.send(embed=embed, delete_after=10)
+                return
+
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate match in progress. ❌")
             await ctx.send(embed=embed, delete_after=10)
@@ -1071,6 +1090,14 @@ class DebateRooms(commands.Cog, name="Debate"):
         # Exit if not in a debate room
         if not self.check_in_debate(ctx):
             return
+
+        if room.private:
+            if ctx.author not in room.private_debaters:
+                embed = discord.Embed(
+                    title="❌ This is a private debate. You need to be unlocked first. ❌"
+                )
+                await ctx.send(embed=embed, delete_after=10)
+                return
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate running right now. ❌")
@@ -1122,6 +1149,14 @@ class DebateRooms(commands.Cog, name="Debate"):
         # Exit if not in a debate room
         if not self.check_in_debate(ctx):
             return
+
+        if room.private:
+            if ctx.author not in room.private_debaters:
+                embed = discord.Embed(
+                    title="❌ This is a private debate. You need to be unlocked first. ❌"
+                )
+                await ctx.send(embed=embed, delete_after=10)
+                return
 
         if not room.check_match():
             embed = discord.Embed(title="❌ No debate match in progress. ❌")
@@ -1195,6 +1230,94 @@ class DebateRooms(commands.Cog, name="Debate"):
             return
         embed = discord.Embed(title="✅ Your vote has been cast.")
         await ctx.send(embed=embed, delete_after=20)
+
+    @only_debate_channels()
+    @disabled_while_concluding()
+    @commands.has_any_role("Staff", "Director", "Moderator")
+    @commands.command(
+        name="private",
+        brief="Convert a public debate into a private one.",
+        help="Limit a debate to a custom list of members. This will prevent"
+             "members not selected from joining a debate. Members can still vote"
+             "on a debate."
+    )
+    async def private(self, ctx):
+        room = self.get_room(self.get_room_number(ctx.channel))
+        if not room.private:
+            room.private = True
+        else:
+            embed = discord.Embed(title="❌ This room is already private. ❌")
+            await ctx.send(embed=embed, delete_after=10)
+            return
+
+        for member in room.vc.members:
+            await member.edit(mute=True)
+
+        if room.match:
+            room.match = None
+        room.purge_topics()
+
+        await self.update_im(room.number)
+
+        embed = discord.Embed(title="✅ This room is now private.")
+        await ctx.send(embed=embed, delete_after=10)
+
+    @only_debate_channels()
+    @disabled_while_concluding()
+    @commands.has_any_role("Staff", "Director", "Moderator")
+    @commands.command(
+        name="public",
+        brief="Convert a private debate back into a public debate.",
+        help="Opens up a private debate back to the public."
+    )
+    async def public(self, ctx):
+        room = self.get_room(self.get_room_number(ctx.channel))
+        if room.private:
+            room.private = False
+        else:
+            embed = discord.Embed(title="❌ This room is already public. ❌")
+            await ctx.send(embed=embed, delete_after=10)
+            return
+
+        for member in room.vc.members:
+            await member.edit(mute=True)
+
+        if room.match:
+            room.match = None
+        room.purge_topics()
+
+        await self.update_im(room.number)
+
+        embed = discord.Embed(title="✅ This room is now public.")
+        await ctx.send(embed=embed, delete_after=10)
+
+    @only_debate_channels()
+    @disabled_while_concluding()
+    @commands.has_any_role("Staff", "Director", "Moderator")
+    @commands.command(
+        name="unlock",
+        brief="Unlocks a member in a private room to become a debater."
+    )
+    async def unlock(self, ctx, member: discord.Member):
+        room = self.get_room(self.get_room_number(ctx.channel))
+        if not room.private:
+            embed = discord.Embed(
+                title="❌ This room is public. Please make the room private first ❌"
+            )
+            await ctx.send(embed=embed, delete_after=10)
+            return
+
+        if member in [m for m in room.private_debaters]:
+            embed = discord.Embed(
+                title="❌ Participant is already unlocked. ❌"
+            )
+            await ctx.send(embed=embed, delete_after=10)
+        else:
+            room.private_debaters.append(member)
+            embed = discord.Embed(
+                title="✅ Participant unlocked."
+            )
+            await ctx.send(embed=embed, delete_after=10)
 
     @only_debate_channels()
     @disabled_while_concluding()
@@ -1298,6 +1421,9 @@ class DebateRooms(commands.Cog, name="Debate"):
             room.match = None  # Clear match
 
             await self.update_topic(room)
+
+            # Clear private debaters
+            room.private_debaters = []
 
             # Send conclude message
             embed = discord.Embed(

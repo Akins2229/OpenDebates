@@ -289,8 +289,9 @@ class DebateRoom:
         self._conclude_voters: List[discord.Member] = []
         self.current_topic: Optional[Topic] = None
 
-        # Debate
-        self._participants: List[Participant] = []
+        # Private Match
+        self.private = False
+        self.private_debaters: List[discord.Member] = []
 
     def __gt__(self, other):
         return self.number > other.number
