@@ -1255,7 +1255,7 @@ class DebateRooms(commands.Cog, name="Debate"):
     @commands.command(
         name="private",
         brief="Convert a public debate into a private one.",
-        help="Limit a debate to a custom list of members. This will prevent"
+        help="Limit a debate to a custom list of members. This will prevent "
         "members not selected from joining a debate. Members can still vote"
         "on a debate.",
     )
