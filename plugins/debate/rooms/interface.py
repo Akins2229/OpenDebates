@@ -1238,8 +1238,8 @@ class DebateRooms(commands.Cog, name="Debate"):
         name="private",
         brief="Convert a public debate into a private one.",
         help="Limit a debate to a custom list of members. This will prevent"
-             "members not selected from joining a debate. Members can still vote"
-             "on a debate."
+        "members not selected from joining a debate. Members can still vote"
+        "on a debate.",
     )
     async def private(self, ctx):
         room = self.get_room(self.get_room_number(ctx.channel))
@@ -1269,7 +1269,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         name="public",
         brief="Convert a private debate back into a public debate.",
         help="Opens up a private debate back to the public. "
-             "Cancels any existing private match."
+        "Cancels any existing private match.",
     )
     async def public(self, ctx):
         room = self.get_room(self.get_room_number(ctx.channel))
@@ -1298,7 +1298,7 @@ class DebateRooms(commands.Cog, name="Debate"):
     @commands.command(
         name="unlock",
         brief="Unlocks a member in a private room to become a debater.",
-        help="Unlock a specific member to allow them to debate or set topics."
+        help="Unlock a specific member to allow them to debate or set topics.",
     )
     async def unlock(self, ctx, member: discord.Member):
         room = self.get_room(self.get_room_number(ctx.channel))
@@ -1310,15 +1310,11 @@ class DebateRooms(commands.Cog, name="Debate"):
             return
 
         if member in [m for m in room.private_debaters]:
-            embed = discord.Embed(
-                title="❌ Participant is already unlocked. ❌"
-            )
+            embed = discord.Embed(title="❌ Participant is already unlocked. ❌")
             await ctx.send(embed=embed, delete_after=10)
         else:
             room.private_debaters.append(member)
-            embed = discord.Embed(
-                title="✅ Participant unlocked."
-            )
+            embed = discord.Embed(title="✅ Participant unlocked.")
             await ctx.send(embed=embed, delete_after=10)
 
     @only_debate_channels()
