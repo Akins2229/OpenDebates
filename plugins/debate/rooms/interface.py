@@ -551,8 +551,20 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         # Do nothing if mute event
         if before.mute and not after.mute:
+            async for entry in member.guild.audit_logs(limit=1,
+                                                       action=discord.AuditLogAction.member_update):
+                if entry.before.mute and not entry.after.mute:
+                    if self.roles['role_staff'] in entry.user.roles:
+                        if self.roles['role_muted'] in entry.target.roles:
+                            await entry.target.remove_roles(self.roles['role_muted'])
             return
         if not before.mute and after.mute:
+            async for entry in member.guild.audit_logs(limit=1,
+                                                       action=discord.AuditLogAction.member_update):
+                if not entry.before.mute and entry.after.mute:
+                    if self.roles['role_staff'] in entry.user.roles:
+                        if self.roles['role_muted'] not in entry.target.roles:
+                            await entry.target.add_roles(self.roles['role_muted'])
             return
 
         if before.deaf and not after.deaf:
