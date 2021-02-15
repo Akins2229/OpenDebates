@@ -1268,7 +1268,8 @@ class DebateRooms(commands.Cog, name="Debate"):
     @commands.command(
         name="public",
         brief="Convert a private debate back into a public debate.",
-        help="Opens up a private debate back to the public."
+        help="Opens up a private debate back to the public. "
+             "Cancels any existing private match."
     )
     async def public(self, ctx):
         room = self.get_room(self.get_room_number(ctx.channel))
@@ -1296,7 +1297,8 @@ class DebateRooms(commands.Cog, name="Debate"):
     @commands.has_any_role("Staff", "Director", "Moderator")
     @commands.command(
         name="unlock",
-        brief="Unlocks a member in a private room to become a debater."
+        brief="Unlocks a member in a private room to become a debater.",
+        help="Unlock a specific member to allow them to debate or set topics."
     )
     async def unlock(self, ctx, member: discord.Member):
         room = self.get_room(self.get_room_number(ctx.channel))
