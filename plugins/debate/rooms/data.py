@@ -471,8 +471,7 @@ class DebateRoom:
             self.topics.remove(topic)
 
     def remove_obsolete_topics(self):
-        """Remove all topics that hit 0 votes and the author is not in the room.
-        """
+        """Remove all topics that hit 0 votes and the author is not in the room."""
         for topic in self.topics:
             if topic.votes == 0 and topic.author not in self.vc.members:
                 self.topics.remove(topic)

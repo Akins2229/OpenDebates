@@ -294,8 +294,6 @@ class DebateRooms(commands.Cog, name="Debate"):
         for debater in debaters:
             await room.vc.set_permissions(debater.member, overwrite=None)
 
-        print("In 2")
-
         embed = discord.Embed(
             title="⏸ Debate concluding..",
             description="ELO ratings are being updated. "
@@ -412,7 +410,6 @@ class DebateRooms(commands.Cog, name="Debate"):
                                 await debater.member.edit(mute=True)
 
                         match.concluding = True
-                        print("In")
                         await self.conclude_debate(room, debaters)
                         match.concluding = False
                         match.concluded = True
