@@ -294,6 +294,8 @@ class DebateRooms(commands.Cog, name="Debate"):
         for debater in debaters:
             await room.vc.set_permissions(debater.member, overwrite=None)
 
+        print("In 2")
+
         embed = discord.Embed(
             title="⏸ Debate concluding..",
             description="ELO ratings are being updated. "
@@ -393,7 +395,6 @@ class DebateRooms(commands.Cog, name="Debate"):
                         await room.vc.set_permissions(debater.member, overwrite=None)
                         if debater.member in room.vc.members:
                             await debater.member.edit(mute=True)
-                    return
 
                 debaters = []
                 if match.concluding is False and match.concluded is False:
@@ -411,6 +412,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                                 await debater.member.edit(mute=True)
 
                         match.concluding = True
+                        print("In")
                         await self.conclude_debate(room, debaters)
                         match.concluding = False
                         match.concluded = True
@@ -611,7 +613,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             room_before = self.get_room(self.get_room_number(before.channel))
             room_before.remove_topic_voter(member)
             room_before.remove_priority_from_topic(member)
-            room_before.remove_obsolete_topic(member)
+            room_before.remove_obsolete_topics()
 
             active_debaters = []
             if room_before.match:
@@ -669,7 +671,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             room_before = self.get_room(self.get_room_number(before.channel))
             room_before.remove_topic_voter(member)
             room_before.remove_priority_from_topic(member)
-            room_before.remove_obsolete_topic(member)
+            room_before.remove_obsolete_topics()
 
             active_debaters = []
             if room_before.match:

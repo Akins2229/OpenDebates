@@ -470,15 +470,12 @@ class DebateRoom:
         if topic:
             self.topics.remove(topic)
 
-    def remove_obsolete_topic(self, author: discord.Member):
-        """Remove a topic when it hits 0 votes and the author is not in the
-        room.
+    def remove_obsolete_topics(self):
+        """Remove all topics that hit 0 votes and the author is not in the room.
         """
-        topic = self.topic_from_member(author)
-        if topic is None:
-            return
-        if topic.votes == 0:
-            self.remove_topic(author)
+        for topic in self.topics:
+            if topic.votes == 0 and topic.author not in self.vc.members:
+                self.topics.remove(topic)
 
     # Topic Voter Methods
 
