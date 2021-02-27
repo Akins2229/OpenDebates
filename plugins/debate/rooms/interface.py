@@ -723,13 +723,15 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if after.channel:
             after_list = list(dr_vcs)
-            after_list.remove(after.channel)
+            if after.channel in after_list:
+                after_list.remove(after.channel)
         else:
             return
 
         if before.channel:
             before_list = list(dr_vcs)
-            before_list.remove(before.channel)
+            if before.channel in before_list:
+                before_list.remove(before.channel)
         else:
             return
 
