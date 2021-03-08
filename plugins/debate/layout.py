@@ -6,8 +6,6 @@ from discord.ext import commands
 from discord.ext.commands import BucketType
 
 from plugins.debate.overwrites import (
-    _debate_tc_citizen_permissions,
-    _debate_tc_member_permissions,
     generate_overwrite,
     lockdown_citizen_general_perms,
     lockdown_debate_member_perms,
@@ -326,7 +324,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         # Confirm database has been updated.
         response = discord.Embed(color=0x77B255, title="✅ Roles Updated")
-        await progress_message.edit(embed=response, delete_after=30)
+        await progress_message.edit(embed=response)
 
     async def check_roles(self, ctx, message):
         guild = ctx.guild
@@ -643,7 +641,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         # Confirm database has been updated.
         response = discord.Embed(color=0x77B255, title="✅ Channels Updated")
-        await progress_message.edit(embed=response, delete_after=30)
+        await progress_message.edit(embed=response)
 
     @commands.command(
         name="enable-debates",
@@ -718,7 +716,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         # Confirm Debates is Enabled
         response = discord.Embed(color=0x77B255, title="✅ Debates Enabled")
-        await progress_message.edit(embed=response, delete_after=30)
+        await progress_message.edit(embed=response)
 
     @commands.command(
         name="disable-debates",
@@ -740,7 +738,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         # Confirm debates is enabled
         response = discord.Embed(color=0x77B255, title="✅ Debates Disabled")
-        await progress_message.edit(embed=response, delete_after=30)
+        await progress_message.edit(embed=response)
 
     @commands.has_role("Staff")
     @commands.command(
@@ -751,6 +749,11 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         "moderation bots go down.",
     )
     async def lockdown(self, ctx):
+        # Indicate command is running.
+        title = f"🔍 Locking Server"
+        response = discord.Embed(color=0x696969, title=title)
+        progress_message = await ctx.channel.send(embed=response)
+
         await self.channels["tc_commands"].set_permissions(
             self.roles["role_member"], overwrite=lockdown_permissions
         )
@@ -941,6 +944,10 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         await self.bot.cogs["Debate"].lockdown_cancel_all_matches()
 
+        # Confirm server is locked down
+        response = discord.Embed(color=0x77B255, title="✅ Server Locked Down")
+        await progress_message.edit(embed=response)
+
     @commands.has_role("Director")
     @commands.command(
         name="reopen",
@@ -950,6 +957,11 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         "use this command.",
     )
     async def reopen(self, ctx):
+        # Indicate command is running.
+        title = f"🔍 Re-Opening Server"
+        response = discord.Embed(color=0x696969, title=title)
+        progress_message = await ctx.channel.send(embed=response)
+
         await self.channels["tc_commands"].edit(
             overwrites=generate_overwrite(ctx, self.roles, "commands")
         )
@@ -984,6 +996,10 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             await tc.set_permissions(
                 self.roles["role_citizen"], overwrite=_neutral_debate_tc_permissions
             )
+
+            # Confirm server is locked down
+            response = discord.Embed(color=0x77B255, title="✅ Server Re-Opened")
+            await progress_message.edit(embed=response)
 
     @commands.has_role("Engineering")
     @commands.command(

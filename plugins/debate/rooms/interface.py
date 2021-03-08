@@ -1465,11 +1465,10 @@ class DebateRooms(commands.Cog, name="Debate"):
     @commands.command(
         name="tutorial",
         brief="Displays a youtube tutorial for the server.",
-        help="Retrieves the youtube tutorial on how to use the server."
+        help="Retrieves the youtube tutorial on how to use the server.",
     )
     async def tutorial(self, ctx):
         await ctx.send(content="https://www.youtube.com/watch?v=XtFeLxxuzWo")
-
 
     async def lockdown_cancel_all_matches(self):
         for room in self.debate_rooms:
