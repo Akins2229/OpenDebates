@@ -997,9 +997,9 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                 self.roles["role_citizen"], overwrite=_neutral_debate_tc_permissions
             )
 
-            # Confirm server is locked down
-            response = discord.Embed(color=0x77B255, title="✅ Server Re-Opened")
-            await progress_message.edit(embed=response)
+        # Confirm server is locked down
+        response = discord.Embed(color=0x77B255, title="✅ Server Re-Opened")
+        await progress_message.edit(embed=response)
 
     @commands.has_role("Engineering")
     @commands.command(
