@@ -79,7 +79,7 @@ lockdown_permissions = PermissionOverwrite(
 )
 
 _neutral_read_only_permissions = PermissionOverwrite(
-    create_instant_invite=False,
+    create_instant_invite=True,
     manage_channels=False,
     add_reactions=False,
     priority_speaker=False,
@@ -547,7 +547,7 @@ _debate_tc_member_permissions = PermissionOverwrite(
 )
 
 _neutral_permissions = PermissionOverwrite(
-    create_instant_invite=None,
+    create_instant_invite=True,
     manage_channels=None,
     add_reactions=None,
     priority_speaker=None,
@@ -573,7 +573,7 @@ _neutral_permissions = PermissionOverwrite(
 )
 
 _neutral_debate_category_perms = PermissionOverwrite(
-    create_instant_invite=None,
+    create_instant_invite=True,
     manage_channels=None,
     add_reactions=None,
     priority_speaker=None,
@@ -599,7 +599,7 @@ _neutral_debate_category_perms = PermissionOverwrite(
 )
 
 _neutral_debate_tc_permissions = PermissionOverwrite(
-    create_instant_invite=None,
+    create_instant_invite=True,
     manage_channels=None,
     add_reactions=None,
     priority_speaker=None,

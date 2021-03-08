@@ -781,7 +781,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             )
             await tc.set_permissions(
                 self.roles["role_member"],
-                create_instant_invite=None,
+                create_instant_invite=True,
                 manage_channels=None,
                 add_reactions=None,
                 priority_speaker=None,
@@ -807,7 +807,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             )
             await tc.set_permissions(
                 self.roles["role_citizen"],
-                create_instant_invite=None,
+                create_instant_invite=True,
                 manage_channels=None,
                 add_reactions=None,
                 priority_speaker=None,
@@ -835,7 +835,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             if _channel_num != 1:
                 await vc.set_permissions(
                     self.roles["role_member"],
-                    create_instant_invite=None,
+                    create_instant_invite=True,
                     manage_channels=None,
                     add_reactions=None,
                     priority_speaker=None,
@@ -861,7 +861,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                 )
                 await vc.set_permissions(
                     self.roles["role_citizen"],
-                    create_instant_invite=None,
+                    create_instant_invite=True,
                     manage_channels=None,
                     add_reactions=None,
                     priority_speaker=None,
@@ -888,7 +888,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             else:
                 await vc.set_permissions(
                     self.roles["role_member"],
-                    create_instant_invite=None,
+                    create_instant_invite=True,
                     manage_channels=None,
                     add_reactions=None,
                     priority_speaker=None,
@@ -914,7 +914,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                 )
                 await vc.set_permissions(
                     self.roles["role_citizen"],
-                    create_instant_invite=None,
+                    create_instant_invite=True,
                     manage_channels=None,
                     add_reactions=None,
                     priority_speaker=None,
