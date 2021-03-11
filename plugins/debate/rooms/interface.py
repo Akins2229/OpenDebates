@@ -143,7 +143,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         await self.delete_recent_messages()
         for room in self.debate_rooms:
             message = await self.send_embed_message(room.number)
-            self.interface_messages.append(message)
+            self.interface_messages.append(message.id)
 
         self.enabled = True
 
@@ -185,6 +185,14 @@ class DebateRooms(commands.Cog, name="Debate"):
     # End of Convenience Methods
 
     @commands.Cog.listener()
+    async def on_connect(self):
+        self.bot.logger.notice("Successfully resumed connection to Gateway.")
+
+    @commands.Cog.listener()
+    async def on_disconnect(self):
+        self.bot.logger.warning("Disconnected from Gateway.")
+
+    @commands.Cog.listener()
     async def on_message(self, message):
         if message.author == self.bot.user:
             # Do nothing if the message is persistent embed
@@ -200,26 +208,34 @@ class DebateRooms(commands.Cog, name="Debate"):
             index = room_num - 1
             im_del = self.interface_messages[index]
             try:
-                await im_del.delete()
+                im_del = await message.channel.fetch_message(im_del)
+            except discord.errors.NotFound as e_info:
+                im_del = None
+
+            try:
+                if im_del:
+                    await im_del.delete()
             except discord.errors.NotFound as e_info:
                 return
 
     @commands.Cog.listener()
-    async def on_message_delete(self, message):
-        if message.channel in self.debate_room_tcs:
+    async def on_raw_message_delete(self, payload):
+        channel = self.bot.get_channel(payload.channel_id)
+        if channel in self.debate_room_tcs:
             # Add interface message when embed is deleted
-            if message.id in [i.id for i in self.interface_messages]:
-                index = self.get_room_number(message.channel) - 1
+            if payload.message_id in self.interface_messages:
+                index = self.get_room_number(channel) - 1
                 if not self.exiting:
                     im = await self.add_interface_message(index)
 
     @commands.Cog.listener()
-    async def on_bulk_message_delete(self, messages):
-        for message in messages:
-            if message.channel in self.debate_room_tcs:
+    async def on_raw_bulk_message_delete(self, payload):
+        channel = self.bot.get_channel(payload.channel_id)
+        for message_id in payload.message_ids:
+            if channel in self.debate_room_tcs:
                 # Add interface message when embed is deleted
-                if message.id in [i.id for i in self.interface_messages]:
-                    index = self.get_room_number(message.channel) - 1
+                if message_id in self.interface_messages:
+                    index = self.get_room_number(channel) - 1
                     if not self.exiting:
                         im = await self.add_interface_message(index)
 
@@ -254,20 +270,28 @@ class DebateRooms(commands.Cog, name="Debate"):
     async def add_interface_message(self, index):
         room_num = index + 1
         im_add = await self.send_embed_message(room_num)
-        self.interface_messages[index] = im_add
-        return self.interface_messages
+        self.interface_messages[index] = im_add.id
+        return self.interface_messages[index]
 
     async def update_im(self, room_num):
         index = room_num - 1
-        im = self.interface_messages[index]
+        im_id = self.interface_messages[index]
         embed = self.get_embed_message(room_num)
-        topic = self.get_room(room_num).current_topic
+        room = self.get_room(room_num)
+
+        try:
+            im = await room.tc.fetch_message(im_id)
+        except discord.errors.NotFound as e_info:
+            im = None
+
+        topic = room.current_topic
         if topic:
             embed.add_field(
                 name="**Topic**: ", value=f"{self.get_room(room_num).current_topic}"
             )
         try:
-            await im.edit(embed=embed)
+            if im:
+                await im.edit(embed=embed)
         except discord.errors.NotFound as e_info:
             return
 
@@ -585,6 +609,16 @@ class DebateRooms(commands.Cog, name="Debate"):
         if before.self_deaf and not after.self_deaf:
             return
         if not before.self_deaf and after.self_deaf:
+            return
+
+        if before.self_stream and not after.self_stream:
+            return
+        if not before.self_stream and after.self_stream:
+            return
+
+        if before.self_video and not after.self_video:
+            return
+        if not before.self_video and after.self_video:
             return
 
         async def join_room():
@@ -1470,15 +1504,27 @@ class DebateRooms(commands.Cog, name="Debate"):
     async def tutorial(self, ctx):
         await ctx.send(content="https://www.youtube.com/watch?v=XtFeLxxuzWo")
 
-    async def lockdown_cancel_all_matches(self):
+    async def clear_member_overwrites(self):
+        for room in self.debate_rooms:
+            for member in room.tc.members:
+                await room.tc.set_permissions(member, overwrite=None)
+
+    async def cancel_all_matches(self):
         for room in self.debate_rooms:
             if room.match:
                 room.match = None
             room.purge_topics()
             index = room.number - 1
-            await self.interface_messages[index].edit(
-                embed=self.get_embed_message(room_num=room.number)
-            )
+            channel = room.tc
+            try:
+                message = await channel.fetch_message(self.interface_messages[index])
+            except discord.errors.NotFound as e_info:
+                message = None
+
+            if message:
+                await message.edit(
+                    embed=self.get_embed_message(room_num=room.number)
+                )
 
             for member in room.vc.members:
                 await member.move_to(None)
@@ -1496,11 +1542,17 @@ class DebateRooms(commands.Cog, name="Debate"):
                     self.roles["role_citizen"], overwrite=overwrite
                 )
 
-    async def debates_disabled(self):
+    async def debates_disabled(self, ctx):
         self.exiting = True
-        for message in self.interface_messages:
+        for message_id in self.interface_messages:
             try:
-                await message.delete()
+                message = await discord.abc.Messageable.fetch_message(message_id)
+            except discord.errors.NotFound as e_info:
+                message = None
+
+            try:
+                if message:
+                    await message.delete()
             except discord.errors.NotFound as e_info:
                 self.bot.logger.debug(
                     f"Interface message during exit process could not be deleted."

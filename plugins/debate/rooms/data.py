@@ -524,7 +524,12 @@ class DebateRoom:
                     self._conclude_voters.append(voter)
 
             if len(self.match.participants) < 1:
-                return [], False
+                if self.match.check_voters():
+                    debaters = self.stop_match()
+                    return debaters, True, True
+                else:
+                    debaters = self.stop_match()
+                    return debaters, True, False
 
             if (len(self._conclude_voters) / len(self.match.participants)) > 0.5:
                 if self.match.check_voters():

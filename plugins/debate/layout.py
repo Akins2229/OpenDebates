@@ -143,6 +143,9 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         self.debate_room_maps = []
         self.elo_role_maps = {}
 
+        # General Objects
+        self.guild = None
+
     async def cog_check(self, ctx):
         """Check if user has the Engineering role."""
         engineering = utils.get(ctx.guild.roles, name="Engineering")
@@ -681,6 +684,8 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         guild = ctx.guild
 
+        self.guild = guild
+
         for _channel_number in range(1, 21):
             _tc_debate = await self.db.get(guild, state=f"tc_debate_{_channel_number}")
 
@@ -754,6 +759,15 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         response = discord.Embed(color=0x696969, title=title)
         progress_message = await ctx.channel.send(embed=response)
 
+        await self.lock_all_channels()
+
+        await self.bot.cogs["Debate"].cancel_all_matches()
+
+        # Confirm server is locked down
+        response = discord.Embed(color=0x77B255, title="✅ Server Locked Down")
+        await progress_message.edit(embed=response)
+
+    async def lock_all_channels(self):
         await self.channels["tc_commands"].set_permissions(
             self.roles["role_member"], overwrite=lockdown_permissions
         )
@@ -777,10 +791,10 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         for _channel_num in range(1, 21):
             vc = discord.utils.get(
-                ctx.guild.voice_channels, name=f"Debate {_channel_num}"
+                self.guild.voice_channels, name=f"Debate {_channel_num}"
             )
             tc = discord.utils.get(
-                ctx.guild.text_channels, name=f"debate-{_channel_num}"
+                self.guild.text_channels, name=f"debate-{_channel_num}"
             )
             await tc.set_permissions(
                 self.roles["role_member"],
@@ -942,11 +956,181 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                     manage_webhooks=None,
                 )
 
-        await self.bot.cogs["Debate"].lockdown_cancel_all_matches()
+    async def lock_debate_channels(self):
+        await self.channels["category_debate"].set_permissions(
+            self.roles["role_member"], overwrite=lockdown_debate_member_perms
+        )
 
-        # Confirm server is locked down
-        response = discord.Embed(color=0x77B255, title="✅ Server Locked Down")
-        await progress_message.edit(embed=response)
+        await self.channels["category_debate"].set_permissions(
+            self.roles["role_citizen"], overwrite=lockdown_citizen_general_perms
+        )
+
+        for _channel_num in range(1, 21):
+            vc = discord.utils.get(
+                self.guild.voice_channels, name=f"Debate {_channel_num}"
+            )
+            tc = discord.utils.get(
+                self.guild.text_channels, name=f"debate-{_channel_num}"
+            )
+            await tc.set_permissions(
+                self.roles["role_member"],
+                create_instant_invite=True,
+                manage_channels=None,
+                add_reactions=None,
+                priority_speaker=None,
+                stream=None,
+                read_messages=False,
+                view_channel=False,
+                send_messages=None,
+                send_tts_messages=None,
+                manage_messages=None,
+                embed_links=None,
+                attach_files=None,
+                read_message_history=None,
+                mention_everyone=None,
+                external_emojis=None,
+                connect=None,
+                speak=None,
+                mute_members=None,
+                deafen_members=None,
+                move_members=None,
+                use_voice_activation=None,
+                manage_permissions=None,
+                manage_webhooks=None,
+            )
+            await tc.set_permissions(
+                self.roles["role_citizen"],
+                create_instant_invite=True,
+                manage_channels=None,
+                add_reactions=None,
+                priority_speaker=None,
+                stream=None,
+                read_messages=False,
+                view_channel=False,
+                send_messages=None,
+                send_tts_messages=None,
+                manage_messages=None,
+                embed_links=None,
+                attach_files=None,
+                read_message_history=None,
+                mention_everyone=None,
+                external_emojis=None,
+                connect=None,
+                speak=None,
+                mute_members=None,
+                deafen_members=None,
+                move_members=None,
+                use_voice_activation=None,
+                manage_permissions=None,
+                manage_webhooks=None,
+            )
+
+            if _channel_num != 1:
+                await vc.set_permissions(
+                    self.roles["role_member"],
+                    create_instant_invite=True,
+                    manage_channels=None,
+                    add_reactions=None,
+                    priority_speaker=None,
+                    stream=None,
+                    read_messages=False,
+                    view_channel=False,
+                    send_messages=None,
+                    send_tts_messages=None,
+                    manage_messages=None,
+                    embed_links=None,
+                    attach_files=None,
+                    read_message_history=None,
+                    mention_everyone=None,
+                    external_emojis=None,
+                    connect=None,
+                    speak=None,
+                    mute_members=None,
+                    deafen_members=None,
+                    move_members=None,
+                    use_voice_activation=None,
+                    manage_permissions=None,
+                    manage_webhooks=None,
+                )
+                await vc.set_permissions(
+                    self.roles["role_citizen"],
+                    create_instant_invite=True,
+                    manage_channels=None,
+                    add_reactions=None,
+                    priority_speaker=None,
+                    stream=None,
+                    read_messages=False,
+                    view_channel=False,
+                    send_messages=None,
+                    send_tts_messages=None,
+                    manage_messages=None,
+                    embed_links=None,
+                    attach_files=None,
+                    read_message_history=None,
+                    mention_everyone=None,
+                    external_emojis=None,
+                    connect=None,
+                    speak=None,
+                    mute_members=None,
+                    deafen_members=None,
+                    move_members=None,
+                    use_voice_activation=None,
+                    manage_permissions=None,
+                    manage_webhooks=None,
+                )
+            else:
+                await vc.set_permissions(
+                    self.roles["role_member"],
+                    create_instant_invite=True,
+                    manage_channels=None,
+                    add_reactions=None,
+                    priority_speaker=None,
+                    stream=None,
+                    read_messages=None,
+                    view_channel=None,
+                    send_messages=None,
+                    send_tts_messages=None,
+                    manage_messages=None,
+                    embed_links=None,
+                    attach_files=None,
+                    read_message_history=None,
+                    mention_everyone=None,
+                    external_emojis=None,
+                    connect=None,
+                    speak=None,
+                    mute_members=None,
+                    deafen_members=None,
+                    move_members=None,
+                    use_voice_activation=None,
+                    manage_permissions=None,
+                    manage_webhooks=None,
+                )
+                await vc.set_permissions(
+                    self.roles["role_citizen"],
+                    create_instant_invite=True,
+                    manage_channels=None,
+                    add_reactions=None,
+                    priority_speaker=None,
+                    stream=None,
+                    read_messages=None,
+                    view_channel=None,
+                    send_messages=None,
+                    send_tts_messages=None,
+                    manage_messages=None,
+                    embed_links=None,
+                    attach_files=None,
+                    read_message_history=None,
+                    mention_everyone=None,
+                    external_emojis=None,
+                    connect=None,
+                    speak=None,
+                    mute_members=None,
+                    deafen_members=None,
+                    move_members=None,
+                    use_voice_activation=None,
+                    manage_permissions=None,
+                    manage_webhooks=None,
+                )
 
     @commands.has_role("Director")
     @commands.command(
@@ -1014,5 +1198,5 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         else:
             await self.bot.logout()
         if self.bot.cogs["Debate"].enabled:
-            await self.bot.cogs["Debate"].debates_disabled()
+            await self.bot.cogs["Debate"].debates_disabled(ctx)
         await self.bot.logout()
