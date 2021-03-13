@@ -1540,7 +1540,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                     self.roles["role_citizen"], overwrite=overwrite
                 )
 
-    async def debates_disabled(self, ctx):
+    async def debates_disabled(self):
         self.exiting = True
         for message_id in self.interface_messages:
             try:

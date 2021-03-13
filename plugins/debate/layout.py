@@ -1198,5 +1198,5 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         else:
             await self.bot.logout()
         if self.bot.cogs["Debate"].enabled:
-            await self.bot.cogs["Debate"].debates_disabled(ctx)
+            await self.bot.cogs["Debate"].debates_disabled()
         await self.bot.logout()
