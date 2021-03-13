@@ -1546,11 +1546,11 @@ class DebateRooms(commands.Cog, name="Debate"):
                     self.roles["role_citizen"], overwrite=overwrite
                 )
 
-    async def debates_disabled(self):
+    async def debates_disabled(self, ctx):
         self.exiting = True
         for message_id in self.interface_messages:
             try:
-                message = await discord.abc.Messageable.fetch_message(message_id)
+                message = await ctx.fetch_message(id=message_id)
             except discord.errors.NotFound as e_info:
                 message = None
 
