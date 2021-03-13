@@ -699,52 +699,58 @@ class DebateRooms(commands.Cog, name="Debate"):
 
             # Leave Room
             self.logger.debug(f"{member} left: {before.channel}")
-            room_before = self.get_room(self.get_room_number(before.channel))
-            room_before.remove_topic_voter(member)
-            room_before.remove_priority_from_topic(member)
-            room_before.remove_obsolete_topics()
+            room_before_number = self.get_room_number(before.channel)
+            room_before = None
+            if room_before_number:
+                room_before = self.get_room(room_before_number)
+                room_before.remove_topic_voter(member)
+                room_before.remove_priority_from_topic(member)
+                room_before.remove_obsolete_topics()
 
-            active_debaters = []
-            if room_before.match:
-                participant = room_before.match.get_participant(member)
-                if participant:
-                    participant.session_end = datetime.datetime.utcnow()
-                    participant.update_duration()
+                active_debaters = []
+                if room_before.match:
+                    participant = room_before.match.get_participant(member)
+                    if participant:
+                        participant.session_end = datetime.datetime.utcnow()
+                        participant.update_duration()
 
-                debaters = [d.member for d in room_before.match.get_debaters()]
-                for voice_member in before.channel.members:
-                    if voice_member in debaters:
-                        active_debaters.append(voice_member)
+                    debaters = [d.member for d in room_before.match.get_debaters()]
+                    for voice_member in before.channel.members:
+                        if voice_member in debaters:
+                            active_debaters.append(voice_member)
 
-                self.logger.debug(
-                    f"Active Debaters (On Switch Out): "
-                    f"{[a.name for a in active_debaters]}"
-                )
-                self.logger.debug(
-                    f"# of Active Debaters (On Switch Out): {len(active_debaters)}"
-                )
+                    self.logger.debug(
+                        f"Active Debaters (On Switch Out): "
+                        f"{[a.name for a in active_debaters]}"
+                    )
+                    self.logger.debug(
+                        f"# of Active Debaters (On Switch Out): {len(active_debaters)}"
+                    )
 
-                if len(active_debaters) <= 1:
-                    if room_before.match.concluding or room_before.match.concluded:
-                        pass
-                    else:
-                        room_before.match.concluding = True
-                        await self.conclude_debate(
-                            room_before, debaters=room_before.stop_match()
-                        )
+                    if len(active_debaters) <= 1:
+                        if room_before.match.concluding or room_before.match.concluded:
+                            pass
+                        else:
+                            room_before.match.concluding = True
+                            await self.conclude_debate(
+                                room_before, debaters=room_before.stop_match()
+                            )
 
             # Remove overwrite from VC
-            await room_before.vc.set_permissions(member, overwrite=None)
+            if room_before:
+                await room_before.vc.set_permissions(member, overwrite=None)
 
-            # Make linked text chat invisible
-            tc_before = self.get_tc_from_vc(before.channel)
-            await tc_before.set_permissions(member, overwrite=None)
+                # Make linked text chat invisible
+                tc_before = self.get_tc_from_vc(before.channel)
+                await tc_before.set_permissions(member, overwrite=None)
 
-            # Mute User
-            await member.edit(mute=True)
+                # Mute User
+                await member.edit(mute=True)
 
-            # Delete if not working
-            await self.update_topic(room_before)
+                # Delete if not working
+                await self.update_topic(room_before)
+            else:
+                await member.edit(mute=True)
 
         # If member joins a debate room
         if before.channel is None and after.channel in dr_vcs:
