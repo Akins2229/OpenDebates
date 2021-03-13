@@ -769,7 +769,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         else:
             return
 
-        if before.channel in after_list and after.channel in before_list:
+        if before.channel and after.channel in before_list:
             await switch_room()
             return
 
@@ -1522,9 +1522,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                 message = None
 
             if message:
-                await message.edit(
-                    embed=self.get_embed_message(room_num=room.number)
-                )
+                await message.edit(embed=self.get_embed_message(room_num=room.number))
 
             for member in room.vc.members:
                 await member.move_to(None)
