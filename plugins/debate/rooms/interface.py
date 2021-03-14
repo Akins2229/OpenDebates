@@ -310,14 +310,6 @@ class DebateRooms(commands.Cog, name="Debate"):
         return vc == author_vc
 
     async def conclude_debate(self, room, debaters):
-        for debater in debaters:
-            # Mute
-            if debater.member in room.vc.members:
-                await debater.member.edit(mute=True)
-
-        for debater in debaters:
-            await room.vc.set_permissions(debater.member, overwrite=None)
-
         embed = discord.Embed(
             title="⏸ Debate concluding..",
             description="ELO ratings are being updated. "
@@ -330,6 +322,14 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         if debaters:
             await room.tc.send(embed=embed, delete_after=60)
+
+            for debater in debaters:
+                # Mute
+                if debater.member in room.vc.members:
+                    await debater.member.edit(mute=True)
+
+            for debater in debaters:
+                await room.vc.set_permissions(debater.member, overwrite=None)
 
         for debater in debaters:
             await self.db.upsert(debater.member, elo=debater.elo_post)
@@ -666,7 +666,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                     f"# of Active Debaters (On Leave Room): {len(active_debaters)}"
                 )
 
-                if len(active_debaters) <= 1:
+                if len(active_debaters) <= 1 and member in debaters:
                     if room_before.match.concluding or room_before.match.concluded:
                         pass
                     else:
@@ -727,7 +727,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                         f"# of Active Debaters (On Switch Out): {len(active_debaters)}"
                     )
 
-                    if len(active_debaters) <= 1:
+                    if len(active_debaters) <= 1 and member in debaters:
                         if room_before.match.concluding or room_before.match.concluded:
                             pass
                         else:
