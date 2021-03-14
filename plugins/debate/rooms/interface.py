@@ -749,8 +749,8 @@ class DebateRooms(commands.Cog, name="Debate"):
 
                 # Delete if not working
                 await self.update_topic(room_before)
-            else:
-                await member.edit(mute=True)
+
+            await member.edit(mute=True)
 
         # If member joins a debate room
         if before.channel is None and after.channel in dr_vcs:
