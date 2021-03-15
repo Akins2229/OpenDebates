@@ -366,7 +366,6 @@ class DebateRooms(commands.Cog, name="Debate"):
                         )
                     break
 
-
         if debaters:
             # Clear private debaters
             room.private_debaters = []
