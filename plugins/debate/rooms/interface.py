@@ -740,6 +740,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                             await self.conclude_debate(
                                 room_before, debaters=room_before.stop_match()
                             )
+                            room_before.match.concluding = False
                             room_before.match.concluded = True
 
             # Remove overwrite from VC
