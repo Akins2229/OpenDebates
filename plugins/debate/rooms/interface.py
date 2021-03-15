@@ -318,13 +318,6 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         check_voters = room.match.check_voters()
         if not check_voters:
-            for debater in debaters:
-                # Mute
-                if debater.member in room.vc.members:
-                    await debater.member.edit(mute=True)
-
-            for debater in debaters:
-                await room.vc.set_permissions(debater.member, overwrite=None)
 
             # Clear Debaters
             debaters = []
@@ -373,8 +366,10 @@ class DebateRooms(commands.Cog, name="Debate"):
                         )
                     break
 
-        # Clear private debaters
-        room.private_debaters = []
+
+        if debaters:
+            # Clear private debaters
+            room.private_debaters = []
 
         embed = discord.Embed(
             title="✅ Debate concluded.",
@@ -384,8 +379,8 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed.description = (
                 "ELO ratings have not been updated due to lack of voters."
             )
-        room.match = None  # Clear match
         if debaters:
+            room.match = None  # Clear match
             await room.tc.send(embed=embed)
 
     async def update_topic(self, room):
