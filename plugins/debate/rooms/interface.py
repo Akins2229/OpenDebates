@@ -697,14 +697,17 @@ class DebateRooms(commands.Cog, name="Debate"):
         async def switch_room():
             # Join Room
             self.logger.debug(f"{member} joined: {after.channel}")
-            room_after = self.get_room(self.get_room_number(after.channel))
-            room_after.add_topic_voter(member)
-            room_after.reset_topic_creation(member)
+            room_after_number = self.get_room_number(after.channel)
+            room_after = None
+            if room_after_number:
+                room_after = self.get_room(room_after_number)
+                room_after.add_topic_voter(member)
+                room_after.reset_topic_creation(member)
 
-            # Make linked text chat visible
-            tc_after = self.get_tc_from_vc(after.channel)
-            overwrite = PermissionOverwrite(read_messages=True)
-            await tc_after.set_permissions(member, overwrite=overwrite)
+                # Make linked text chat visible
+                tc_after = self.get_tc_from_vc(after.channel)
+                overwrite = PermissionOverwrite(read_messages=True)
+                await tc_after.set_permissions(member, overwrite=overwrite)
 
             # Leave Room
             self.logger.debug(f"{member} left: {before.channel}")
@@ -753,13 +756,14 @@ class DebateRooms(commands.Cog, name="Debate"):
                 tc_before = self.get_tc_from_vc(before.channel)
                 await tc_before.set_permissions(member, overwrite=None)
 
-                # Mute User
-                await member.edit(mute=True)
+                # # Mute User
+                # await member.edit(mute=True)
 
                 # Delete if not working
                 await self.update_topic(room_before)
 
-            await member.edit(mute=True)
+            if room_after:
+                await member.edit(mute=True)
 
         # If member joins a debate room
         if before.channel is None and after.channel in dr_vcs:
