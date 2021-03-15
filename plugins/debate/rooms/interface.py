@@ -318,6 +318,15 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         check_voters = room.match.check_voters()
         if not check_voters:
+            for debater in debaters:
+                # Mute
+                if debater.member in room.vc.members:
+                    await debater.member.edit(mute=True)
+
+            for debater in debaters:
+                await room.vc.set_permissions(debater.member, overwrite=None)
+
+            # Clear Debaters
             debaters = []
 
         if debaters:
