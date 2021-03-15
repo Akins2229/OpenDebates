@@ -366,9 +366,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                         )
                     break
 
-        if debaters:
-            # Clear private debaters
-            room.private_debaters = []
+        # Clear private debaters
+        room.private_debaters = []
 
         embed = discord.Embed(
             title="✅ Debate concluded.",
@@ -741,6 +740,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                             await self.conclude_debate(
                                 room_before, debaters=room_before.stop_match()
                             )
+                            room_before.match.concluded = True
 
             # Remove overwrite from VC
             if room_before:
