@@ -774,7 +774,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                         f"# of Active Debaters (On Switch Out): {len(active_debaters)}"
                     )
 
-                    if len(active_debaters) <= 1 and member in active_debaters:
+                    if len(active_debaters) <= 1 and member in debaters:
                         if room_before.match.concluding or room_before.match.concluded:
                             pass
                         else:
