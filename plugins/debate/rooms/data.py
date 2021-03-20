@@ -474,6 +474,8 @@ class DebateRoom:
         """Remove all topics that hit 0 votes and the author is not in the room."""
         for topic in self.topics:
             if topic.votes == 0 and topic.author not in self.vc.members:
+                if topic == self.current_topic:
+                    self.match = None
                 self.topics.remove(topic)
 
     # Topic Voter Methods
