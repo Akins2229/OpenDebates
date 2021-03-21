@@ -111,3 +111,5 @@ config.toml
 
 # Erin Configuration Files
 config.toml
+
+.DS_Store
