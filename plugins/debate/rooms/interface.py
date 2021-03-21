@@ -493,7 +493,6 @@ class DebateRooms(commands.Cog, name="Debate"):
         self, ctx, member: Union[Member, str], *, message: commands.clean_content = ""
     ):
         room = self.get_room(self.get_room_number(ctx.channel))
-
         # Exit if not in a debate room
         if not self.check_in_debate(ctx):
             return
@@ -1392,6 +1391,27 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.author.edit(mute=True)
         else:
             await ctx.author.edit(mute=False)
+
+    @only_debate_channels()
+    @commands.command(
+        name="current-topic",
+        aliases=["ct"],
+        brief="Display current topic of a given user.",
+        help="This commands displays the current topic and votes of a given user.",
+    )
+    async def current_topic(self, ctx, author: discord.Member):
+        room = self.get_room(self.get_room_number(ctx.channel))
+
+        for topic in room.topics:
+            if author == topic.author:
+                embed = discord.Embed(title="Current Topic")
+                embed.add_field(name="Topic", value=f"{topic}", inline=False)
+                embed.add_field(name="Votes", value=f"{topic.votes}", inline=False)
+                embed.set_footer(text=f"{author.name}", icon_url=author.avatar_url)
+                await ctx.send(embed=embed)
+                return
+        embed = discord.Embed(title="❌ No topic with the given author. ❌")
+        await ctx.send(embed=embed)
 
     @only_debate_channels()
     @disabled_while_concluding()
