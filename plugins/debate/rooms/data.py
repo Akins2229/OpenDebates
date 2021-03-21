@@ -475,6 +475,7 @@ class DebateRoom:
         for topic in self.topics:
             if topic.votes == 0 and topic.author not in self.vc.members:
                 if topic == self.current_topic:
+                    self.current_topic = None
                     self.match = None
                 self.topics.remove(topic)
 
