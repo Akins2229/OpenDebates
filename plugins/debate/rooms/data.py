@@ -347,8 +347,7 @@ class DebateRoom:
         """Get a list of topics from possible authors."""
         final_topics = []
         for topic in topics:
-            if topic.author in self.vc.members:
-                final_topics.append(topic)
+            final_topics.append(topic)
         return final_topics
 
     def reset_topic_creation(self, author: discord.Member):
