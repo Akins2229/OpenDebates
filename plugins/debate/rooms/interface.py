@@ -831,6 +831,9 @@ class DebateRooms(commands.Cog, name="Debate"):
         elif before.channel in after_list and after.channel not in before_list:
             await switch_room()
             return
+        elif before.channel in after_list and after.channel in before_list:
+            await switch_room()
+            return
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
