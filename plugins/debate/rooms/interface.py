@@ -1183,10 +1183,10 @@ class DebateRooms(commands.Cog, name="Debate"):
             debater_room = self.get_debater_room(ctx.author)
             embed = discord.Embed(
                 title="❌ You are not allowed to start multiple debates "
-                      "simultaneously. ❌",
+                "simultaneously. ❌",
                 description=f"Please wait till your existing debate in "
-                            f"__Debate {debater_room.number}__ is "
-                            f"finished."
+                f"__Debate {debater_room.number}__ is "
+                f"finished.",
             )
             await ctx.send(embed=embed, delete_after=10)
             return
@@ -1255,10 +1255,10 @@ class DebateRooms(commands.Cog, name="Debate"):
             debater_room = self.get_debater_room(ctx.author)
             embed = discord.Embed(
                 title="❌ You are not allowed to start multiple debates "
-                      "simultaneously. ❌",
+                "simultaneously. ❌",
                 description=f"Please wait till your existing debate in "
-                            f"__Debate {debater_room.number}__ is "
-                            f"finished."
+                f"__Debate {debater_room.number}__ is "
+                f"finished.",
             )
             await ctx.send(embed=embed, delete_after=10)
             return
@@ -1346,10 +1346,10 @@ class DebateRooms(commands.Cog, name="Debate"):
             debater_room = self.get_debater_room(ctx.author)
             embed = discord.Embed(
                 title="❌ You are not allowed to start multiple debates "
-                      "simultaneously. ❌",
+                "simultaneously. ❌",
                 description=f"Please wait till your existing debate in "
-                            f"__Debate {debater_room.number}__ is "
-                            f"finished."
+                f"__Debate {debater_room.number}__ is "
+                f"finished.",
             )
             await ctx.send(embed=embed, delete_after=10)
             return
