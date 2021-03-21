@@ -389,7 +389,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed.description = (
                 "ELO ratings have not been updated due to lack of voters."
             )
-        # room.match = None  # Clear match
+            room.match = None  # Clear match
 
         if debaters:
             await room.tc.send(embed=embed)
@@ -411,12 +411,13 @@ class DebateRooms(commands.Cog, name="Debate"):
                 topic_updated = room.set_current_topic()
                 current_topic = room.current_topic
                 room.start_match(current_topic)
+
+                for member in room.vc.members:
+                    await room.vc.set_permissions(member, overwrite=None)
+                    await member.edit(mute=True)
+
                 await self.update_im(room.number)
             else:
-                # for member in room.vc.members:
-                #     await room.vc.set_permissions(member, overwrite=None)
-                #     await member.edit(mute=True)
-
                 if not room.match:
                     return
 
@@ -694,17 +695,17 @@ class DebateRooms(commands.Cog, name="Debate"):
                     f"# of Active Debaters (On Leave Room): {len(active_debaters)}"
                 )
 
-                if len(active_debaters) <= 1 and member in debaters:
+                if len(active_debaters) < 1 and member in debaters:
                     if room_before.match.concluding or room_before.match.concluded:
                         pass
                     else:
-                        if member not in room_before.current_topic.voters:
-                            room_before.match.concluding = True
-                            await self.conclude_debate(
-                                room_before, debaters=room_before.stop_match()
-                            )
-                            if room_before.match:
-                                room_before.match.concluding = False
+                        # if member not in room_before.current_topic.voters:
+                        room_before.match.concluding = True
+                        await self.conclude_debate(
+                            room_before, debaters=room_before.stop_match()
+                        )
+                        if room_before.match:
+                            room_before.match.concluding = False
 
             # Remove overwrite from VC
             await room_before.vc.set_permissions(member, overwrite=None)
@@ -719,30 +720,33 @@ class DebateRooms(commands.Cog, name="Debate"):
         async def switch_room():
             # Join Room
             self.logger.debug(f"{member} joined: {after.channel}")
-            room_after = self.get_room(self.get_room_number(after.channel))
-            room_after.add_topic_voter(member)
-            room_after.reset_topic_creation(member)
+            room_after_number = self.get_room_number(after.channel)
+            room_after = None
+            if room_after_number:
+                room_after = self.get_room(room_after_number)
+                room_after.add_topic_voter(member)
+                room_after.reset_topic_creation(member)
 
-            if room_after.match:
-                participant = room_after.match.get_participant(member)
-                if participant:
-                    participant.session_start = datetime.datetime.utcnow()
+                if room_after.match:
+                    participant = room_after.match.get_participant(member)
+                    if participant:
+                        participant.session_start = datetime.datetime.utcnow()
 
-            # Make linked text chat visible
-            tc_after = self.get_tc_from_vc(after.channel)
-            overwrite = PermissionOverwrite(read_messages=True)
-            await tc_after.set_permissions(member, overwrite=overwrite)
+                # Make linked text chat visible
+                tc_after = self.get_tc_from_vc(after.channel)
+                overwrite = PermissionOverwrite(read_messages=True)
+                await tc_after.set_permissions(member, overwrite=overwrite)
 
-            if room_after.match:
-                if room_after.match.check_debater(member):
-                    if self.roles["role_muted"] in member.roles:
-                        await member.edit(mute=True)
+                if room_after.match:
+                    if room_after.match.check_debater(member):
+                        if self.roles["role_muted"] in member.roles:
+                            await member.edit(mute=True)
+                        else:
+                            await member.edit(mute=False)
                     else:
-                        await member.edit(mute=False)
+                        await member.edit(mute=True)
                 else:
                     await member.edit(mute=True)
-            else:
-                await member.edit(mute=True)
 
             # Leave Room
             self.logger.debug(f"{member} left: {before.channel}")
@@ -774,18 +778,18 @@ class DebateRooms(commands.Cog, name="Debate"):
                         f"# of Active Debaters (On Switch Out): {len(active_debaters)}"
                     )
 
-                    if len(active_debaters) <= 1 and member in debaters:
+                    if len(active_debaters) < 1 and member in debaters:
                         if room_before.match.concluding or room_before.match.concluded:
                             pass
                         else:
                             # Make sure member is not a voter on an active topic
-                            if member not in room_before.current_topic.voters:
-                                room_before.match.concluding = True
-                                await self.conclude_debate(
-                                    room_before, debaters=room_before.stop_match()
-                                )
-                                if room_before.match:
-                                    room_before.match.concluding = False
+                            # if member not in room_before.current_topic.voters:
+                            room_before.match.concluding = True
+                            await self.conclude_debate(
+                                room_before, debaters=room_before.stop_match()
+                            )
+                            if room_before.match:
+                                room_before.match.concluding = False
 
             # Remove overwrite from VC
             if room_before:
@@ -821,7 +825,10 @@ class DebateRooms(commands.Cog, name="Debate"):
         else:
             return
 
-        if before.channel and after.channel in before_list:
+        if before.channel not in after_list and after.channel in before_list:
+            await switch_room()
+            return
+        elif before.channel in after_list and after.channel not in before_list:
             await switch_room()
             return
 
