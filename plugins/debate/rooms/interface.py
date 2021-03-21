@@ -510,6 +510,8 @@ class DebateRooms(commands.Cog, name="Debate"):
 
             if self.check_debate_vc(self.get_vc_from_tc(ctx.channel)):
                 topic = room.vote_topic(voter=ctx.author, candidate=member)
+                embed = discord.Embed(title="✅ Vote to change topic has been cast.")
+                await ctx.send(embed=embed, delete_after=10)
         else:
             if len(str(message)) > 300:
                 embed = discord.Embed(title="❌ Topic is longer than 300 characters! ❌")
