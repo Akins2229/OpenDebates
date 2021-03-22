@@ -293,6 +293,9 @@ class DebateRoom:
         self.private = False
         self.private_debaters: List[discord.Member] = []
 
+        # Progress State
+        self.updating_topic = False
+
     def __gt__(self, other):
         return self.number > other.number
 

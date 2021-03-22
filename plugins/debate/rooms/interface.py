@@ -6,9 +6,29 @@ from typing import Optional, Union
 import discord
 from discord import Member, PermissionOverwrite
 from discord.ext import commands
-from discord.ext.commands import BucketType
+from discord.ext.commands import BucketType, CheckFailure
 
 from plugins.debate.rooms.data import DebateRoom, Participant, Topic
+
+
+# Errors
+class UpdatingTopic(CheckFailure):
+    """
+    Raised when topic is still updating.
+    """
+
+    pass
+
+
+class ConcludingMatch(CheckFailure):
+    """
+    Raised when match is still concluding.
+    """
+
+    pass
+
+
+# Checks
 
 
 def only_debate_channels():
@@ -72,7 +92,23 @@ def disabled_while_concluding():
             return True
 
         if room.match.concluding:
-            return False
+            raise ConcludingMatch(message="Still concluding match.")
+        else:
+            return True
+
+    return commands.check(predicate)
+
+
+def disabled_while_updating_topic():
+    def predicate(ctx):
+        room_number = ctx.cog.get_room_number(ctx.channel)
+        room = ctx.cog.get_room(room_number)
+
+        if room is None:
+            return True
+
+        if room.updating_topic:
+            raise UpdatingTopic(message="Still updating topic.")
         else:
             return True
 
@@ -182,8 +218,10 @@ class DebateRooms(commands.Cog, name="Debate"):
         """Ensure VoiceChannel is a debate room."""
         return vc in [room.vc for room in self.debate_rooms]
 
-    def check_debater_in_any_room(self, member: discord.Member) -> bool:
-        for room in self.debate_rooms:
+    def check_debater_in_any_room(self, room, member: discord.Member) -> bool:
+        rooms = self.debate_rooms[:]
+        rooms.remove(room)
+        for room in rooms:
             if room.match:
                 if room.match.check_debater(member):
                     return True
@@ -252,6 +290,17 @@ class DebateRooms(commands.Cog, name="Debate"):
                     index = self.get_room_number(channel) - 1
                     if not self.exiting:
                         im = await self.add_interface_message(index)
+
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, UpdatingTopic):
+            embed = discord.Embed(title="❌ You're doing that too fast! ❌")
+            await ctx.channel.send(embed=embed, delete_after=3)
+        elif isinstance(error, ConcludingMatch):
+            embed = discord.Embed(
+                title="❌ Please wait while the debate is " "being concluded! ❌"
+            )
+            await ctx.channel.send(embed=embed, delete_after=3)
 
     async def delete_recent_messages(self):
         """Delete most recent messages sent by the bot account."""
@@ -330,8 +379,12 @@ class DebateRooms(commands.Cog, name="Debate"):
             "Debate specific commands will not run.",
         )
 
-        check_voters = room.match.check_voters()
-        if not check_voters:
+        if room.match:
+            check_voters = room.match.check_voters()
+            if not check_voters:
+                debaters = []
+        else:
+            check_voters = None
             debaters = []
 
         if debaters:
@@ -389,7 +442,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed.description = (
                 "ELO ratings have not been updated due to lack of voters."
             )
-            room.match = None  # Clear match
+        room.match = None  # Clear match
 
         if debaters:
             await room.tc.send(embed=embed)
@@ -481,6 +534,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.command(
         name="topic",
         brief="Set or vote for a topic in a debate room.",
@@ -530,7 +584,9 @@ class DebateRooms(commands.Cog, name="Debate"):
                         "because you updated it! ⚠️"
                     )
                     await ctx.channel.send(embed=embed, delete_after=10)
+        room.updating_topic = True
         await self.update_topic(room)
+        room.updating_topic = False
 
     async def make_vc_visible(self, vc):
         await vc.edit(sync_permissions=True)
@@ -717,7 +773,9 @@ class DebateRooms(commands.Cog, name="Debate"):
             await tc_before.set_permissions(member, overwrite=None)
 
             # Delete if not working
+            room_before.updating_topic = True
             await self.update_topic(room_before)
+            room_before.updating_topic = False
 
         async def switch_room():
             # Join Room
@@ -802,7 +860,9 @@ class DebateRooms(commands.Cog, name="Debate"):
                 await tc_before.set_permissions(member, overwrite=None)
 
                 # Delete if not working
+                room_before.updating_topic = True
                 await self.update_topic(room_before)
+                room_before.updating_topic = False
 
         # If member joins a debate room
         if before.channel is None and after.channel in dr_vcs:
@@ -859,6 +919,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.has_any_role("Staff", "Director", "Moderator")
     @commands.command(
         name="remove-topic",
@@ -886,7 +947,9 @@ class DebateRooms(commands.Cog, name="Debate"):
             else:
                 room.remove_topic(room.current_topic.author)
             room.match = None  # Clear match
+            room.updating_topic = True
             await self.update_topic(room)
+            room.updating_topic = False
 
     @commands.has_role("Engineering")
     @commands.command(
@@ -1077,6 +1140,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.command(
         name="for",
         brief="Set the 'For' position on a topic in a debate room.",
@@ -1117,6 +1181,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.command(
         name="against",
         brief="Set the 'Against' position on a topic in a debate room.",
@@ -1157,6 +1222,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.command(
         name="debate",
         brief="Start or join a debate.",
@@ -1184,7 +1250,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.send(embed=embed, delete_after=10)
             return
 
-        if self.check_debater_in_any_room(ctx.author):
+        if self.check_debater_in_any_room(room, ctx.author):
             debater_room = self.get_debater_room(ctx.author)
             embed = discord.Embed(
                 title="❌ You are not allowed to start multiple debates "
@@ -1229,6 +1295,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.command(
         name="debate-for",
         aliases=["df"],
@@ -1256,7 +1323,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.send(embed=embed, delete_after=10)
             return
 
-        if self.check_debater_in_any_room(ctx.author):
+        if self.check_debater_in_any_room(room, ctx.author):
             debater_room = self.get_debater_room(ctx.author)
             embed = discord.Embed(
                 title="❌ You are not allowed to start multiple debates "
@@ -1319,6 +1386,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.command(
         name="debate-against",
         aliases=["da"],
@@ -1347,7 +1415,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.send(embed=embed, delete_after=10)
             return
 
-        if self.check_debater_in_any_room(ctx.author):
+        if self.check_debater_in_any_room(room, ctx.author):
             debater_room = self.get_debater_room(ctx.author)
             embed = discord.Embed(
                 title="❌ You are not allowed to start multiple debates "
@@ -1395,6 +1463,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.command(
         name="vote",
         brief="Vote for who you think won the debate.",
@@ -1434,6 +1503,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.has_any_role("Staff", "Director", "Moderator")
     @commands.command(
         name="private",
@@ -1465,6 +1535,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.has_any_role("Staff", "Director", "Moderator")
     @commands.command(
         name="public",
@@ -1495,6 +1566,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.has_any_role("Staff", "Director", "Moderator")
     @commands.command(
         name="unlock",
@@ -1520,6 +1592,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
     @only_debate_channels()
     @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.command(
         name="conclude",
         brief="Conclude an active debate.",
@@ -1619,7 +1692,9 @@ class DebateRooms(commands.Cog, name="Debate"):
             room.remove_conclude_voters()
             room.match = None  # Clear match
 
+            room.updating_topic = True
             await self.update_topic(room)
+            room.updating_topic = False
 
             # Clear private debaters
             room.private_debaters = []
