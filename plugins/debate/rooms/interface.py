@@ -1461,6 +1461,8 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.author.edit(mute=False)
 
     @only_debate_channels()
+    @disabled_while_concluding()
+    @disabled_while_updating_topic()
     @commands.command(
         name="current-topic",
         aliases=["ct"],
