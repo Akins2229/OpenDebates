@@ -314,7 +314,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         response = discord.Embed(
             color=0xEB6A5C,
             title=f"Debate Room {room_num}",
-            description="Set channel topics democratically and vote for "
+            description="Set room topics democratically and vote for "
             "the best debater.",
         )
         return response
@@ -716,17 +716,35 @@ class DebateRooms(commands.Cog, name="Debate"):
 
             if room_after.match:
                 if room_after.match.check_debater(member):
+                    if room_after.private:
+                        if self.roles["role_muted"] in member.roles:
+                            await member.edit(mute=True)
+                        else:
+                            if member in room_after.private_debaters:
+                                await member.edit(mute=False)
+                            else:
+                                await member.edit(mute=True)
+                    else:
+                        if self.roles["role_muted"] in member.roles:
+                            await member.edit(mute=True)
+                        else:
+                            await member.edit(mute=False)
+                else:
+                    await member.edit(mute=True)
+            else:
+                if room_after.private:
+                    if self.roles["role_muted"] in member.roles:
+                        await member.edit(mute=True)
+                    else:
+                        if member in room_after.private_debaters:
+                            await member.edit(mute=False)
+                        else:
+                            await member.edit(mute=True)
+                else:
                     if self.roles["role_muted"] in member.roles:
                         await member.edit(mute=True)
                     else:
                         await member.edit(mute=False)
-                else:
-                    await member.edit(mute=True)
-            else:
-                if self.roles["role_muted"] in member.roles:
-                    await member.edit(mute=True)
-                else:
-                    await member.edit(mute=False)
 
         async def leave_room():
             self.logger.debug(f"{member} left: {before.channel}")
@@ -801,17 +819,35 @@ class DebateRooms(commands.Cog, name="Debate"):
 
                 if room_after.match:
                     if room_after.match.check_debater(member):
+                        if room_after.private:
+                            if self.roles["role_muted"] in member.roles:
+                                await member.edit(mute=True)
+                            else:
+                                if member in room_after.private_debaters:
+                                    await member.edit(mute=False)
+                                else:
+                                    await member.edit(mute=True)
+                        else:
+                            if self.roles["role_muted"] in member.roles:
+                                await member.edit(mute=True)
+                            else:
+                                await member.edit(mute=False)
+                    else:
+                        await member.edit(mute=True)
+                else:
+                    if room_after.private:
+                        if self.roles["role_muted"] in member.roles:
+                            await member.edit(mute=True)
+                        else:
+                            if member in room_after.private_debaters:
+                                await member.edit(mute=False)
+                            else:
+                                await member.edit(mute=True)
+                    else:
                         if self.roles["role_muted"] in member.roles:
                             await member.edit(mute=True)
                         else:
                             await member.edit(mute=False)
-                    else:
-                        await member.edit(mute=True)
-                else:
-                    if self.roles["role_muted"] in member.roles:
-                        await member.edit(mute=True)
-                    else:
-                        await member.edit(mute=False)
 
             # Leave Room
             self.logger.debug(f"{member} left: {before.channel}")
@@ -1549,9 +1585,13 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.send(embed=embed, delete_after=10)
             return
 
+        for member in room.vc.members:
+            await member.edit(mute=True)
+
         if room.match:
             room.match = None
         room.purge_topics()
+        room.private_debaters = []
 
         await self.update_im(room.number)
 
@@ -1577,9 +1617,13 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.send(embed=embed, delete_after=10)
             return
 
+        for member in room.vc.members:
+            await member.edit(mute=False)
+
         if room.match:
             room.match = None
         room.purge_topics()
+        room.private_debaters = []
 
         await self.update_im(room.number)
 
@@ -1609,6 +1653,12 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.send(embed=embed, delete_after=10)
         else:
             room.private_debaters.append(member)
+            if member in room.vc.members:
+                if room.match:
+                    await member.edit(mute=True)
+                else:
+                    await member.edit(mute=False)
+
             embed = discord.Embed(title="✅ Participant unlocked.")
             await ctx.send(embed=embed, delete_after=10)
 
