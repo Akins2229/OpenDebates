@@ -315,7 +315,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             color=0xEB6A5C,
             title=f"Debate Room {room_num}",
             description="Set channel topics democratically and vote for "
-            "the best debater. Start a debate to unmute yourself.",
+            "the best debater.",
         )
         return response
 
@@ -723,7 +723,10 @@ class DebateRooms(commands.Cog, name="Debate"):
                 else:
                     await member.edit(mute=True)
             else:
-                await member.edit(mute=True)
+                if self.roles["role_muted"] in member.roles:
+                    await member.edit(mute=True)
+                else:
+                    await member.edit(mute=False)
 
         async def leave_room():
             self.logger.debug(f"{member} left: {before.channel}")
@@ -805,7 +808,10 @@ class DebateRooms(commands.Cog, name="Debate"):
                     else:
                         await member.edit(mute=True)
                 else:
-                    await member.edit(mute=True)
+                    if self.roles["role_muted"] in member.roles:
+                        await member.edit(mute=True)
+                    else:
+                        await member.edit(mute=False)
 
             # Leave Room
             self.logger.debug(f"{member} left: {before.channel}")
@@ -1542,9 +1548,6 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed = discord.Embed(title="❌ This room is already private. ❌")
             await ctx.send(embed=embed, delete_after=10)
             return
-
-        for member in room.vc.members:
-            await member.edit(mute=True)
 
         if room.match:
             room.match = None
