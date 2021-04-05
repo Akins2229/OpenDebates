@@ -1577,9 +1577,6 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.send(embed=embed, delete_after=10)
             return
 
-        for member in room.vc.members:
-            await member.edit(mute=True)
-
         if room.match:
             room.match = None
         room.purge_topics()
