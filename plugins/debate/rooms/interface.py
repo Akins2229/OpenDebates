@@ -386,6 +386,8 @@ class DebateRooms(commands.Cog, name="Debate"):
         else:
             check_voters = None
             debaters = []
+            for member in room.vc.members:
+                await member.edit(mute=False)
 
         if debaters:
             await room.tc.send(embed=embed, delete_after=60)
@@ -526,7 +528,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                     return
         else:
             for member in room.vc.members:
-                await member.edit(mute=True)
+                await member.edit(mute=False)
 
         topic_updated = room.set_current_topic()
         current_topic = room.current_topic
@@ -1703,10 +1705,14 @@ class DebateRooms(commands.Cog, name="Debate"):
                 description="ELO ratings are being updated.",
             )
             await ctx.send(embed=embed, delete_after=60)
-            for debater in debaters:
-                # Mute
-                if debater.member in room.vc.members:
-                    await debater.member.edit(mute=True)
+            if room.match:
+                for debater in debaters:
+                    # Mute
+                    if debater.member in room.vc.members:
+                        await debater.member.edit(mute=True)
+            else:
+                for member in room.vc.members:
+                    await member.edit(mute=False)
 
             for debater in debaters:
                 await room.vc.set_permissions(debater.member, overwrite=None)
