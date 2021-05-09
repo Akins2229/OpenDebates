@@ -4,6 +4,7 @@ from queue import PriorityQueue
 from typing import Optional, Union
 
 import discord
+import pymongo
 from discord import Member, PermissionOverwrite
 from discord.ext import commands
 from discord.ext.commands import BucketType, CheckFailure
@@ -1179,6 +1180,30 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed.set_footer(
                 text=ctx.author.display_name, icon_url=ctx.author.avatar_url
             )
+        await ctx.send(embed=embed)
+
+    @only_misc_debate_command_channels()
+    @commands.cooldown(1, 5, BucketType.user)
+    @commands.command(
+        name="leaderboard",
+        brief="Display top 10 ELO ratings of a users.",
+        help="This command will display the top 10 ELO scores of users.",
+    )
+    async def leaderboard(self, ctx):
+        elo_cursor = self.db[self.db.database].MemberStates.find().sort("elo", pymongo.DESCENDING)
+        elo_mappings = await elo_cursor.to_list(length=10)
+        guild = ctx.guild
+        description = ""
+        count = 0
+        for mapping in elo_mappings:
+            member = guild.get_member(mapping['member_id'])
+            if self.roles['role_member'] in member.roles or self.roles['role_citizen'] in member.roles:
+                count += 1
+                description += f"`{count: 02d}` {member.mention} • {str(mapping['elo'])}\n"
+        embed = discord.Embed(
+            title="ELO Leaderboard",
+            description=description
+        )
         await ctx.send(embed=embed)
 
     @only_debate_channels()
