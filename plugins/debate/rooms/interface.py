@@ -1190,20 +1190,26 @@ class DebateRooms(commands.Cog, name="Debate"):
         help="This command will display the top 10 ELO scores of users.",
     )
     async def leaderboard(self, ctx):
-        elo_cursor = self.db[self.db.database].MemberStates.find().sort("elo", pymongo.DESCENDING)
+        elo_cursor = (
+            self.db[self.db.database]
+            .MemberStates.find()
+            .sort("elo", pymongo.DESCENDING)
+        )
         elo_mappings = await elo_cursor.to_list(length=10)
         guild = ctx.guild
         description = ""
         count = 0
         for mapping in elo_mappings:
-            member = guild.get_member(mapping['member_id'])
-            if self.roles['role_member'] in member.roles or self.roles['role_citizen'] in member.roles:
+            member = guild.get_member(mapping["member_id"])
+            if (
+                self.roles["role_member"] in member.roles
+                or self.roles["role_citizen"] in member.roles
+            ):
                 count += 1
-                description += f"`{count: 02d}` {member.mention} • {str(mapping['elo'])}\n"
-        embed = discord.Embed(
-            title="ELO Leaderboard",
-            description=description
-        )
+                description += (
+                    f"`{count: 02d}` {member.mention} • {str(mapping['elo'])}\n"
+                )
+        embed = discord.Embed(title="ELO Leaderboard", description=description)
         await ctx.send(embed=embed)
 
     @only_debate_channels()
