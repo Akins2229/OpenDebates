@@ -1207,7 +1207,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             ):
                 count += 1
                 description += (
-                    f"`{count: 02d}` {member.mention} • {str(mapping['elo'])}\n"
+                    f"`{count: 03d}` {member.mention} • {str(mapping['elo'])}\n"
                 )
         embed = discord.Embed(title="ELO Leaderboard", description=description)
         await ctx.send(embed=embed)
