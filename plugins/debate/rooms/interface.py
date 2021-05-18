@@ -9,6 +9,7 @@ from discord import Member, PermissionOverwrite
 from discord.ext import commands
 from discord.ext.commands import BucketType, CheckFailure
 
+from opendebates.utils import floor_elo
 from plugins.debate.rooms.data import DebateRoom, Participant, Topic
 
 
@@ -416,23 +417,25 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed.add_field(name="After: ", value=f"{debater.elo_post}")
             await debate_feed.send(embed=embed)
 
-            for key, val in self.elo_role_maps.items():
-                guild = room.vc.guild
-                if guild.get_member(debater):
-                    await debater.member.remove_roles(
-                        debater.member.guild.get_role(self.elo_role_maps[key]),
-                        reason="Automatically removed at end of match.",
-                    )
+            # Update Roles
+            guild = debater.member.guild
+            elo_role_id = self.elo_role_maps[floor_elo(debater.elo_post)]
+            elo_role = guild.get_role(elo_role_id)
+
+            if elo_role not in debater.member.roles:
+                await debater.member.add_roles(
+                    elo_role,
+                    reason="Added at the end of a debate match."
+                )
 
             for key, val in self.elo_role_maps.items():
-                if key < debater.elo_post:
-                    guild = room.vc.guild
-                    if guild.get_member(debater):
-                        await debater.member.add_roles(
-                            debater.member.guild.get_role(self.elo_role_maps[key]),
-                            reason="Automatically added at the end of a match.",
+                role = guild.get_role(val)
+                if role in debater.member.roles:
+                    if role is not elo_role:
+                        await debater.member.remove_roles(
+                            role,
+                            reason="Removed at the end of a debate match."
                         )
-                    break
 
         # Clear private debaters
         room.private_debaters = []
@@ -1765,28 +1768,25 @@ class DebateRooms(commands.Cog, name="Debate"):
                     embed.add_field(name="After: ", value=f"{debater.elo_post}")
                     await debate_feed.send(embed=embed)
 
-                    # Remove ELO roles
-                    for key, val in self.elo_role_maps.items():
-                        guild = room.vc.guild
-                        if guild.get_member(debater):
-                            await debater.member.remove_roles(
-                                debater.member.guild.get_role(self.elo_role_maps[key]),
-                                reason="Automatically removed at end of match.",
-                            )
+                    # Update Roles
+                    guild = debater.member.guild
+                    elo_role_id = self.elo_role_maps[floor_elo(debater.elo_post)]
+                    elo_role = guild.get_role(elo_role_id)
 
-                    # Add ELO roles
+                    if elo_role not in debater.member.roles:
+                        await debater.member.add_roles(
+                            elo_role,
+                            reason="Added at the end of a debate match."
+                        )
+
                     for key, val in self.elo_role_maps.items():
-                        if key < debater.elo_post:
-                            guild = room.vc.guild
-                            if guild.get_member(debater):
-                                await debater.member.add_roles(
-                                    debater.member.guild.get_role(
-                                        self.elo_role_maps[key]
-                                    ),
-                                    reason="Automatically added at the "
-                                    "end of a match.",
+                        role = guild.get_role(val)
+                        if role in debater.member.roles:
+                            if role is not elo_role:
+                                await debater.member.remove_roles(
+                                    role,
+                                    reason="Removed at the end of a debate match."
                                 )
-                            break
 
             # Update topic
             current_topic = room.current_topic
