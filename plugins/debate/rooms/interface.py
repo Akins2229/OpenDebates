@@ -1247,6 +1247,20 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         elo = await self.db.get(ctx.author, state="elo")
 
+        if not elo:
+            await self.db.upsert(ctx.author, elo=1500)
+            for key, val in self.elo_role_maps.items():
+                await ctx.author.remove_roles(
+                    ctx.author.guild.get_role(self.elo_role_maps[key]),
+                    reason="Automatically removed because ELO was missing.",
+                )
+
+            await ctx.author.add_roles(
+                ctx.author.guild.get_role(self.elo_role_maps[800]),
+                reason="Automatically added because ELO was missing.",
+            )
+
+
         room.match.add_for(
             Participant(
                 member=ctx.author, elo=elo, session_start=datetime.datetime.utcnow()
@@ -1287,6 +1301,19 @@ class DebateRooms(commands.Cog, name="Debate"):
             return
 
         elo = await self.db.get(ctx.author, state="elo")
+
+        if not elo:
+            await self.db.upsert(ctx.author, elo=1500)
+            for key, val in self.elo_role_maps.items():
+                await ctx.author.remove_roles(
+                    ctx.author.guild.get_role(self.elo_role_maps[key]),
+                    reason="Automatically removed because ELO was missing.",
+                )
+
+            await ctx.author.add_roles(
+                ctx.author.guild.get_role(self.elo_role_maps[800]),
+                reason="Automatically added because ELO was missing.",
+            )
 
         room.match.add_against(
             Participant(
@@ -1434,6 +1461,19 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         elo = await self.db.get(ctx.author, state="elo")
 
+        if not elo:
+            await self.db.upsert(ctx.author, elo=1500)
+            for key, val in self.elo_role_maps.items():
+                await ctx.author.remove_roles(
+                    ctx.author.guild.get_role(self.elo_role_maps[key]),
+                    reason="Automatically removed because ELO was missing.",
+                )
+
+            await ctx.author.add_roles(
+                ctx.author.guild.get_role(self.elo_role_maps[800]),
+                reason="Automatically added because ELO was missing.",
+            )
+
         room.match.add_for(
             Participant(
                 member=ctx.author, elo=elo, session_start=datetime.datetime.utcnow()
@@ -1510,6 +1550,19 @@ class DebateRooms(commands.Cog, name="Debate"):
             return
 
         elo = await self.db.get(ctx.author, state="elo")
+
+        if not elo:
+            await self.db.upsert(ctx.author, elo=1500)
+            for key, val in self.elo_role_maps.items():
+                await ctx.author.remove_roles(
+                    ctx.author.guild.get_role(self.elo_role_maps[key]),
+                    reason="Automatically removed because ELO was missing.",
+                )
+
+            await ctx.author.add_roles(
+                ctx.author.guild.get_role(self.elo_role_maps[800]),
+                reason="Automatically added because ELO was missing.",
+            )
 
         room.match.add_against(
             Participant(
