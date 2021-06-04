@@ -424,8 +424,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
             if elo_role not in debater.member.roles:
                 await debater.member.add_roles(
-                    elo_role,
-                    reason="Added at the end of a debate match."
+                    elo_role, reason="Added at the end of a debate match."
                 )
 
             for key, val in self.elo_role_maps.items():
@@ -433,8 +432,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                 if role in debater.member.roles:
                     if role is not elo_role:
                         await debater.member.remove_roles(
-                            role,
-                            reason="Removed at the end of a debate match."
+                            role, reason="Removed at the end of a debate match."
                         )
 
         # Clear private debaters
@@ -1262,7 +1260,6 @@ class DebateRooms(commands.Cog, name="Debate"):
 
             elo = 1500
 
-
         room.match.add_for(
             Participant(
                 member=ctx.author, elo=elo, session_start=datetime.datetime.utcnow()
@@ -1836,8 +1833,7 @@ class DebateRooms(commands.Cog, name="Debate"):
 
                     if elo_role not in debater.member.roles:
                         await debater.member.add_roles(
-                            elo_role,
-                            reason="Added at the end of a debate match."
+                            elo_role, reason="Added at the end of a debate match."
                         )
 
                     for key, val in self.elo_role_maps.items():
@@ -1845,8 +1841,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                         if role in debater.member.roles:
                             if role is not elo_role:
                                 await debater.member.remove_roles(
-                                    role,
-                                    reason="Removed at the end of a debate match."
+                                    role, reason="Removed at the end of a debate match."
                                 )
 
             # Update topic

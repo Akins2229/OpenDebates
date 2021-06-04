@@ -7,4 +7,3 @@ def floor_elo(elo_input: int) -> int:
         if elo_input >= elo_rating:
             elo_counter = elo_rating
     return elo_counter
-
