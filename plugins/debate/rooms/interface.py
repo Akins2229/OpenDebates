@@ -1260,6 +1260,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                 reason="Automatically added because ELO was missing.",
             )
 
+            elo = 1500
+
 
         room.match.add_for(
             Participant(
@@ -1314,6 +1316,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                 ctx.author.guild.get_role(self.elo_role_maps[800]),
                 reason="Automatically added because ELO was missing.",
             )
+
+            elo = 1500
 
         room.match.add_against(
             Participant(
@@ -1474,6 +1478,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                 reason="Automatically added because ELO was missing.",
             )
 
+            elo = 1500
+
         room.match.add_for(
             Participant(
                 member=ctx.author, elo=elo, session_start=datetime.datetime.utcnow()
@@ -1563,6 +1569,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                 ctx.author.guild.get_role(self.elo_role_maps[800]),
                 reason="Automatically added because ELO was missing.",
             )
+
+            elo = 1500
 
         room.match.add_against(
             Participant(
