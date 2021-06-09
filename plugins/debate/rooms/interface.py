@@ -317,7 +317,8 @@ class DebateRooms(commands.Cog, name="Debate"):
             color=0xEB6A5C,
             title=f"Debate Room {room_num}",
             description="Set room topics democratically and vote for "
-            "the best debater.",
+            "the best debater. Make sure to set your stance as soon as "
+            "possible to ensure your vote counts more.",
         )
         return response
 
