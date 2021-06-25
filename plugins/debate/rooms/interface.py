@@ -1094,9 +1094,9 @@ class DebateRooms(commands.Cog, name="Debate"):
     @commands.has_role("Engineering")
     @commands.command(
         name="repair-elo",
-        brief="Repairs the ELO ratings of buggy users.",
-        help="This command will check all users to see if they have missing "
-             "ELO ratings, fix their roles and update the database.",
+        brief="Repairs the ELO ratings of a buggy user.",
+        help="This command will check a user to see if they have missing "
+             "ELO rating, fix their roles and update the database.",
     )
     async def repair_elo(self, ctx, member: Member):
         if member.bot:
@@ -1145,7 +1145,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         help="This command will check all users to see if they have missing "
         "ELO ratings, fix their roles and update the database.",
     )
-    async def repair_elo(self, ctx):
+    async def repair_all_elo(self, ctx):
         guild = ctx.guild
 
         # Count humans
