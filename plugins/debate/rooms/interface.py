@@ -1096,6 +1096,53 @@ class DebateRooms(commands.Cog, name="Debate"):
         name="repair-elo",
         brief="Repairs the ELO ratings of buggy users.",
         help="This command will check all users to see if they have missing "
+             "ELO ratings, fix their roles and update the database.",
+    )
+    async def repair_elo(self, ctx, member: Member):
+        if member.bot:
+            embed = discord.Embed(title="❌ Not a human. ❌")
+            await ctx.send(embed=embed)
+            return
+
+        elo = await self.db.get(member, state="elo")
+        if elo:
+            for key, val in self.elo_role_maps.items():
+                await member.remove_roles(
+                    member.guild.get_role(self.elo_role_maps[key]),
+                    reason="Automatically removed during repair-elo.",
+                )
+
+            for key, val in self.elo_role_maps.items():
+                if key < elo:
+                    await member.add_roles(
+                        member.guild.get_role(self.elo_role_maps[key]),
+                        reason="Automatically added during repair-elo.",
+                    )
+        else:
+            await self.db.upsert(member, elo=1500)
+            for key, val in self.elo_role_maps.items():
+                await member.remove_roles(
+                    member.guild.get_role(self.elo_role_maps[key]),
+                    reason="Automatically removed during repair-elo.",
+                )
+
+            await member.add_roles(
+                member.guild.get_role(self.elo_role_maps[800]),
+                reason="Automatically added during repair-elo.",
+            )
+
+        response = discord.Embed(
+            color=0x77B255,
+            title="✅ ELO is updated.",
+        )
+        await ctx.send(embed=response)
+
+
+    @commands.has_role("Engineering")
+    @commands.command(
+        name="repair-all-elo",
+        brief="Repairs the ELO ratings of buggy users.",
+        help="This command will check all users to see if they have missing "
         "ELO ratings, fix their roles and update the database.",
     )
     async def repair_elo(self, ctx):
