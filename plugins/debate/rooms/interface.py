@@ -1118,6 +1118,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                         member.guild.get_role(self.elo_role_maps[key]),
                         reason="Automatically added during repair-elo.",
                     )
+                    break
         else:
             await self.db.upsert(member, elo=1500)
             for key, val in self.elo_role_maps.items():
