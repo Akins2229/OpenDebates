@@ -995,6 +995,14 @@ class DebateRooms(commands.Cog, name="Debate"):
             room.match = None  # Clear match
             room.updating_topic = True
             await self.update_topic(room)
+
+            if room.private and room.current_topic:
+                for member in room.vc.members:
+                    await member.edit(mute=True)
+            elif room.private and not room.curent_topic:
+                for member in room.vc.members:
+                    if member not in room.private_debaters:
+                        await member.edit(mute=True)
             room.updating_topic = False
 
     @commands.has_role("Engineering")
