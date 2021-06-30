@@ -300,7 +300,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             await ctx.channel.send(embed=embed, delete_after=3)
         elif isinstance(error, ConcludingMatch):
             embed = discord.Embed(
-                title="❌ Please wait while the debate is " "being concluded! ❌"
+                title="❌ Please wait while the debate is being concluded! ❌"
             )
             await ctx.channel.send(embed=embed, delete_after=3)
 
