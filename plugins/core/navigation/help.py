@@ -15,7 +15,7 @@ class HelpPaginator(Pages):
         )
         self.total = len(entries)
         self.help_command = help_command
-        self.prefix = help_command.clean_prefix
+        self.prefix = help_command.context.clean_prefix
         self.is_bot = False
 
     def get_bot_page(self, page):
@@ -121,7 +121,9 @@ class PaginatedHelpCommand(commands.HelpCommand):
     def __init__(self):
         super().__init__(
             command_attrs={
-                "cooldown": commands.Cooldown(1, 3.0, commands.BucketType.member),
+                "cooldown": commands.CooldownMapping(
+                    commands.Cooldown(1, 3.0), commands.BucketType.member
+                ),
                 "help": "Shows help about the bot, a command, or a category",
             }
         )

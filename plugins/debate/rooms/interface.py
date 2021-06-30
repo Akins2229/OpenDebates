@@ -412,7 +412,7 @@ class DebateRooms(commands.Cog, name="Debate"):
             )
             embed.set_footer(
                 text=debater.member.display_name,
-                icon_url=debater.member.avatar_url,
+                icon_url=debater.member.avatar.url,
             )
             embed.add_field(name="Before: ", value=f"{debater.elo_pre}")
             embed.add_field(name="After: ", value=f"{debater.elo_post}")
@@ -1106,7 +1106,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         name="repair-elo",
         brief="Repairs the ELO ratings of a buggy user.",
         help="This command will check a user to see if they have missing "
-             "ELO rating, fix their roles and update the database.",
+        "ELO rating, fix their roles and update the database.",
     )
     async def repair_elo(self, ctx, member: Member):
         if member.bot:
@@ -1147,7 +1147,6 @@ class DebateRooms(commands.Cog, name="Debate"):
             title="✅ ELO is updated.",
         )
         await ctx.send(embed=response)
-
 
     @commands.has_role("Engineering")
     @commands.command(
@@ -1235,10 +1234,10 @@ class DebateRooms(commands.Cog, name="Debate"):
             description=f"`{str(elo)}`",
         )
         if member:
-            embed.set_footer(text=member.display_name, icon_url=member.avatar_url)
+            embed.set_footer(text=member.display_name, icon_url=member.avatar.url)
         else:
             embed.set_footer(
-                text=ctx.author.display_name, icon_url=ctx.author.avatar_url
+                text=ctx.author.display_name, icon_url=ctx.author.avatar.url
             )
         await ctx.send(embed=embed)
 
@@ -1672,7 +1671,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                 embed = discord.Embed(title="Current Topic")
                 embed.add_field(name="Topic", value=f"{topic}", inline=False)
                 embed.add_field(name="Votes", value=f"{topic.votes}", inline=False)
-                embed.set_footer(text=f"{author.name}", icon_url=author.avatar_url)
+                embed.set_footer(text=f"{author.name}", icon_url=author.avatar.url)
                 await ctx.send(embed=embed)
                 return
         embed = discord.Embed(title="❌ No topic with the given author. ❌")
@@ -1879,7 +1878,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                     )
                     embed.set_footer(
                         text=debater.member.display_name,
-                        icon_url=debater.member.avatar_url,
+                        icon_url=debater.member.avatar.url,
                     )
                     embed.add_field(name="Before: ", value=f"{debater.elo_pre}")
                     embed.add_field(name="After: ", value=f"{debater.elo_post}")
