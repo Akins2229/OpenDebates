@@ -24,6 +24,9 @@ _staff_team_permissive = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=True,
     manage_webhooks=False,
+    manage_threads=True,
+    use_threads=True,
+    use_private_threads=True
 )
 
 _no_permissions = PermissionOverwrite(
@@ -50,6 +53,9 @@ _no_permissions = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False
 )
 
 lockdown_permissions = PermissionOverwrite(
@@ -102,6 +108,9 @@ _neutral_read_only_permissions = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False
 )
 
 _read_only_permissions = PermissionOverwrite(
@@ -128,6 +137,9 @@ _read_only_permissions = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False
 )
 
 
@@ -153,6 +165,9 @@ _muted_read_only_permissions = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False
 )
 
 _moderation_send_all_and_read_all_permission = PermissionOverwrite(
@@ -179,6 +194,9 @@ _moderation_send_all_and_read_all_permission = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=True,
+    use_private_threads=False
 )
 
 _moderation_privileged_permissions = PermissionOverwrite(
@@ -205,6 +223,9 @@ _moderation_privileged_permissions = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=True,
+    use_threads=True,
+    use_private_threads=True
 )
 
 _staff_team_read_only = PermissionOverwrite(
@@ -231,6 +252,9 @@ _staff_team_read_only = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False
 )
 
 _read_and_send_only = PermissionOverwrite(
@@ -257,6 +281,9 @@ _read_and_send_only = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False
 )
 
 _citizen_general_perms = PermissionOverwrite(
@@ -335,6 +362,9 @@ _moderator_general_perms = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=True,
+    use_threads=True,
+    use_private_threads=True
 )
 
 _moderator_debate_perms = PermissionOverwrite(
@@ -388,6 +418,9 @@ _senior_mod_general_perms = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=True,
+    use_threads=True,
+    use_private_threads=True
 )
 
 _moderator_log_permissions = PermissionOverwrite(
@@ -570,6 +603,9 @@ _neutral_permissions = PermissionOverwrite(
     use_voice_activation=None,
     manage_permissions=None,
     manage_webhooks=None,
+    manage_threads=None,
+    use_threads=None,
+    use_private_threads=None
 )
 
 _neutral_debate_category_perms = PermissionOverwrite(
@@ -596,6 +632,9 @@ _neutral_debate_category_perms = PermissionOverwrite(
     use_voice_activation=None,
     manage_permissions=None,
     manage_webhooks=None,
+    manage_threads=None,
+    use_threads=None,
+    use_private_threads=None
 )
 
 _neutral_debate_tc_permissions = PermissionOverwrite(
@@ -622,6 +661,9 @@ _neutral_debate_tc_permissions = PermissionOverwrite(
     use_voice_activation=None,
     manage_permissions=None,
     manage_webhooks=None,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False
 )
 
 all_channel_overwrites = {
@@ -656,7 +698,7 @@ all_channel_overwrites = {
         "role_citizen": _neutral_read_only_permissions,
         "role_member": _neutral_read_only_permissions,
         "role_logs": _neutral_permissions,
-        "role_detained": _neutral_read_only_permissions,
+        "role_detained": _no_permissions,
         "role_muted": _neutral_read_only_permissions,
         "role_super_muted": _no_permissions,
         "role_everyone": _neutral_permissions,
@@ -695,6 +737,9 @@ all_channel_overwrites = {
             use_voice_activation=True,
             manage_permissions=False,
             manage_webhooks=False,
+            manage_threads=False,
+            use_threads=False,
+            use_private_threads=False
         ),
     },
     "community_updates": {

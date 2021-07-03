@@ -199,7 +199,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         self.role_director = await guild.create_role(
             name="Director",
-            permissions=Permissions(permissions=1275064288),
+            permissions=Permissions(permissions=121534148576),
             color=Colour(value=0xE74C3C),
             hoist=False,
         )
@@ -207,7 +207,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         self.role_moderator = await guild.create_role(
             name="Moderator",
-            permissions=Permissions(permissions=267775936),
+            permissions=Permissions(permissions=120526860224),
             color=Colour(value=0x2ECC71),
             hoist=False,
         )
@@ -268,11 +268,11 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         # Setup Basic Roles
         self.role_citizen = await guild.create_role(
-            name="Citizen", permissions=Permissions(permissions=104189504), hoist=False
+            name="Citizen", permissions=Permissions(permissions=103183404608), hoist=False
         )
 
         self.role_member = await guild.create_role(
-            name="Member", permissions=Permissions(permissions=36768832), hoist=False
+            name="Member", permissions=Permissions(permissions=103115983936), hoist=False
         )
 
         # Setup Miscellaneous Roles
@@ -441,7 +441,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         )
 
         self.channel_about = await guild.create_text_channel(
-            name="about", category=self.category_information, sync_permissions=True
+            name="about", category=self.category_information
         )
 
         self.channel_verification = await guild.create_text_channel(
@@ -453,7 +453,6 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         self.channel_announcements = await guild.create_text_channel(
             name="announcements",
             category=self.category_information,
-            sync_permissions=True,
         )
         await self.channel_announcements.edit(type=ChannelType.news)
 
@@ -480,7 +479,6 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         self.channel_mod_commands = await guild.create_text_channel(
             name="mod-commands",
             category=self.category_moderation,
-            sync_permissions=True,
         )
 
         self.channel_isolation = await guild.create_text_channel(
@@ -497,7 +495,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         )
 
         self.channel_debate_feed = await guild.create_text_channel(
-            name="debate-feed", category=self.category_interface, sync_permissions=True
+            name="debate-feed", category=self.category_interface
         )
 
         self.channel_commands = await guild.create_text_channel(
@@ -514,15 +512,15 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         )
 
         self.channel_general = await guild.create_text_channel(
-            name="general", category=self.category_community, sync_permissions=True
+            name="general", category=self.category_community
         )
 
         self.channel_serious = await guild.create_text_channel(
-            name="serious", category=self.category_community, sync_permissions=True
+            name="serious", category=self.category_community
         )
 
         self.channel_meme_dump = await guild.create_text_channel(
-            name="meme-dump", category=self.category_community, sync_permissions=True
+            name="meme-dump", category=self.category_community
         )
 
         # Setup Debate Category
@@ -536,47 +534,47 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         )
 
         self.channel_moderator_actions = await guild.create_text_channel(
-            name="moderator-actions", category=self.category_logs, sync_permissions=True
+            name="moderator-actions", category=self.category_logs
         )
 
         self.channel_message_deletion = await guild.create_text_channel(
-            name="message-deletion", category=self.category_logs, sync_permissions=True
+            name="message-deletion", category=self.category_logs
         )
 
         self.channel_message_edits = await guild.create_text_channel(
-            name="message-edits", category=self.category_logs, sync_permissions=True
+            name="message-edits", category=self.category_logs
         )
 
         self.channel_ban_unban = await guild.create_text_channel(
-            name="ban-unban", category=self.category_logs, sync_permissions=True
+            name="ban-unban", category=self.category_logs
         )
 
         self.channel_nicknames = await guild.create_text_channel(
-            name="nicknames", category=self.category_logs, sync_permissions=True
+            name="nicknames", category=self.category_logs
         )
 
         self.channel_join_leave = await guild.create_text_channel(
-            name="join-leave", category=self.category_logs, sync_permissions=True
+            name="join-leave", category=self.category_logs
         )
 
         self.channel_automod = await guild.create_text_channel(
-            name="automod", category=self.category_logs, sync_permissions=True
+            name="automod", category=self.category_logs
         )
 
         self.channel_channels = await guild.create_text_channel(
-            name="channels", category=self.category_logs, sync_permissions=True
+            name="channels", category=self.category_logs
         )
 
         self.channel_invites = await guild.create_text_channel(
-            name="invites", category=self.category_logs, sync_permissions=True
+            name="invites", category=self.category_logs
         )
 
         self.channel_roles = await guild.create_text_channel(
-            name="roles", category=self.category_logs, sync_permissions=True
+            name="roles", category=self.category_logs
         )
 
         self.channel_voice = await guild.create_text_channel(
-            name="voice", category=self.category_logs, sync_permissions=True
+            name="voice", category=self.category_logs
         )
 
         # Create Debate Channels

@@ -328,7 +328,10 @@ class DebateRooms(commands.Cog, name="Debate"):
         topic_updated = self.get_room(room_num).set_current_topic()
         current_topic = self.get_room(room_num).current_topic
         if current_topic:
-            embed.add_field(name="**Topic**: ", value=f"{current_topic}")
+            if current_topic.text_based:
+                embed.add_field(name="**Text Based Topic**: ", value=f"{current_topic}")
+            elif not current_topic.text_based:
+                embed.add_field(name="**Voice Based Topic**: ", value=f"{current_topic}")
         text_channel = self.bot.get_channel(list(self.debate_room_tcs)[room_num - 1].id)
         message = await text_channel.send(embed=embed)
         return message
@@ -352,9 +355,14 @@ class DebateRooms(commands.Cog, name="Debate"):
 
         topic = room.current_topic
         if topic:
-            embed.add_field(
-                name="**Topic**: ", value=f"{self.get_room(room_num).current_topic}"
-            )
+            if topic.text_based:
+                embed.add_field(
+                    name="**Text Based Topic**: ", value=f"{self.get_room(room_num).current_topic}"
+                )
+            elif not topic.text_based:
+                embed.add_field(
+                    name="**Voice Based Topic**: ", value=f"{self.get_room(room_num).current_topic}"
+                )
         try:
             if im:
                 await im.edit(embed=embed)
@@ -542,6 +550,7 @@ class DebateRooms(commands.Cog, name="Debate"):
     @disabled_while_updating_topic()
     @commands.command(
         name="topic",
+        aliases=["vt"],
         brief="Set or vote for a topic in a debate room.",
         help="Set a topic in an empty debate room if you're the first setter. "
         "If you're not the first to set the topic, then vote on any "
@@ -580,12 +589,71 @@ class DebateRooms(commands.Cog, name="Debate"):
                     Topic(
                         member=ctx.author,
                         message=f"{member} {str(message)}",  # Look carefully
+                        text_based=False
                     )
                 )
                 if topic_updated:
                     embed = discord.Embed(
                         title="⚠️ Votes on your topic have been reset "
                         "because you updated it! ⚠️"
+                    )
+                    await ctx.channel.send(embed=embed, delete_after=10)
+        room.updating_topic = True
+        await self.update_topic(room)
+        room.updating_topic = False
+
+    @only_debate_channels()
+    @disabled_while_concluding()
+    @disabled_while_updating_topic()
+    @commands.command(
+        name="text-topic",
+        aliases=["tt"],
+        brief="Set or vote for a text based topic in a debate room.",
+        help="Set a text based topic in an empty debate room if you're the first setter. "
+             "If you're not the first to set the topic, then vote on any "
+             "user's topic or propose your own. A successful topic change "
+             "will cause the ELO ratings to be calculated for debaters.",
+    )
+    async def text_topic(
+        self, ctx, member: Union[Member, str], *, message: commands.clean_content = ""
+    ):
+        room = self.get_room(self.get_room_number(ctx.channel))
+        # Exit if not in a debate room
+        if not self.check_in_debate(ctx):
+            return
+
+        if room.private:
+            if ctx.author not in room.private_debaters:
+                embed = discord.Embed(
+                    title="❌ This is a private debate. You need to be unlocked first. ❌"
+                )
+                await ctx.send(embed=embed, delete_after=10)
+                return
+
+        if isinstance(member, Member):
+
+            if self.check_debate_vc(self.get_vc_from_tc(ctx.channel)):
+                topic = room.vote_topic(voter=ctx.author, candidate=member)
+                embed = discord.Embed(title="✅ Vote to change topic has been cast.")
+                await ctx.send(embed=embed, delete_after=10)
+        else:
+            if len(str(message)) > 300:
+                embed = discord.Embed(title="❌ Topic is longer than 300 characters! ❌")
+                await ctx.channel.send(embed=embed, delete_after=20)
+                return
+            else:
+                topic_updated = room.add_topic(
+                    Topic(
+                        member=ctx.author,
+                        message=f"{member} {str(message)}",  # Look carefully
+                        text_based=True
+
+                    )
+                )
+                if topic_updated:
+                    embed = discord.Embed(
+                        title="⚠️ Votes on your topic have been reset "
+                              "because you updated it! ⚠️"
                     )
                     await ctx.channel.send(embed=embed, delete_after=10)
         room.updating_topic = True
@@ -726,14 +794,16 @@ class DebateRooms(commands.Cog, name="Debate"):
                             await member.edit(mute=True)
                         else:
                             if member in room_after.private_debaters:
-                                await member.edit(mute=False)
+                                if not room_after.current_topic.text_based:
+                                    await member.edit(mute=False)
                             else:
                                 await member.edit(mute=True)
                     else:
                         if self.roles["role_muted"] in member.roles:
                             await member.edit(mute=True)
                         else:
-                            await member.edit(mute=False)
+                            if not room_after.current_topic.text_based:
+                                await member.edit(mute=False)
                 else:
                     await member.edit(mute=True)
             else:
@@ -829,14 +899,16 @@ class DebateRooms(commands.Cog, name="Debate"):
                                 await member.edit(mute=True)
                             else:
                                 if member in room_after.private_debaters:
-                                    await member.edit(mute=False)
+                                    if not room_after.current_topic.text_based:
+                                        await member.edit(mute=False)
                                 else:
                                     await member.edit(mute=True)
                         else:
                             if self.roles["role_muted"] in member.roles:
                                 await member.edit(mute=True)
                             else:
-                                await member.edit(mute=False)
+                                if not room_after.current_topic.text_based:
+                                    await member.edit(mute=False)
                     else:
                         await member.edit(mute=True)
                 else:
@@ -1454,7 +1526,8 @@ class DebateRooms(commands.Cog, name="Debate"):
         if self.roles["role_muted"] in ctx.author.roles:
             await ctx.author.edit(mute=True)
         else:
-            await ctx.author.edit(mute=False)
+            if not room.current_topic.text_based:
+                await ctx.author.edit(mute=False)
 
     @only_debate_channels()
     @disabled_while_concluding()
@@ -1560,7 +1633,8 @@ class DebateRooms(commands.Cog, name="Debate"):
         if self.roles["role_muted"] in ctx.author.roles:
             await ctx.author.edit(mute=True)
         else:
-            await ctx.author.edit(mute=False)
+            if not room.current_topic.text_based:
+                await ctx.author.edit(mute=False)
 
     @only_debate_channels()
     @disabled_while_concluding()
@@ -1652,7 +1726,8 @@ class DebateRooms(commands.Cog, name="Debate"):
         if self.roles["role_muted"] in ctx.author.roles:
             await ctx.author.edit(mute=True)
         else:
-            await ctx.author.edit(mute=False)
+            if not room.current_topic.text_based:
+                await ctx.author.edit(mute=False)
 
     @only_debate_channels()
     @disabled_while_concluding()
@@ -1809,7 +1884,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                 if room.match:
                     await member.edit(mute=True)
                 else:
-                    await member.edit(mute=False)
+                    if not room.current_topic.text_based:
+                        await member.edit(mute=False)
 
             embed = discord.Embed(title="✅ Participant unlocked.")
             await ctx.send(embed=embed, delete_after=10)

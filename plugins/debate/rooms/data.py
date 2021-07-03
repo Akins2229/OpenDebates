@@ -6,11 +6,12 @@ import discord
 
 
 class Topic:
-    def __init__(self, member: discord.Member, message: str = ""):
+    def __init__(self, member: discord.Member, message: str = "", text_based: bool = False):
         self.author = member
         self.message = message
         self.voters = [self.author]
         self.prioritized = False
+        self.text_based = text_based
         self.created_at = datetime.datetime.utcnow()
 
     def __repr__(self):
@@ -19,12 +20,15 @@ class Topic:
                 f'Topic(author="{self.author}", '
                 f'votes="{self.votes}", '
                 f'prioritized="{self.prioritized}", '
+                f'text_based="{self.text_based}" '
                 f'message="{self.message}")'
             )
         else:
             representation = (
                 f'Topic(author="{self.author}", '
-                f'votes="{self.votes}", message="{self.message}")'
+                f'votes="{self.votes}", '
+                f'text_based="{self.text_based}" '
+                f'message="{self.message}")'
             )
         return representation
 
