@@ -3,6 +3,7 @@ import math
 from typing import List, Optional, Union
 
 import discord
+from discord import Thread
 
 
 class Topic:
@@ -283,8 +284,8 @@ class DebateMatch:
 class DebateRoom:
     def __init__(self, number: int, tc: discord.TextChannel, vc: discord.VoiceChannel):
         self.number = number
-        self.tc = tc
-        self.vc = vc
+        self.tc: discord.TextChannel = tc
+        self.vc: discord.VoiceChannel = vc
 
         # Dynamic
         self.topics: List[Topic] = []
@@ -292,6 +293,7 @@ class DebateRoom:
         self.match: Optional[DebateMatch] = None
         self._conclude_voters: List[discord.Member] = []
         self.current_topic: Optional[Topic] = None
+        self.current_thread: Optional[Thread] = None
 
         # Private Match
         self.private = False

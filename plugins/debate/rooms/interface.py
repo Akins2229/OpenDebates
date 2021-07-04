@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 import discord
 import pymongo
-from discord import Member, PermissionOverwrite
+from discord import Member, PermissionOverwrite, Thread
 from discord.ext import commands
 from discord.ext.commands import BucketType, CheckFailure
 
@@ -272,6 +272,14 @@ class DebateRooms(commands.Cog, name="Debate"):
             except discord.errors.NotFound as e_info:
                 return
 
+        if isinstance(message.channel, Thread):
+            if message.channel.parent in self.debate_room_tcs:
+                room = self.get_room(self.get_room_number(message.channel.parent))
+                if room.match:
+                    if not room.match.check_debater(message.author) and not message.is_system():
+                        if message.author != self.bot.user:
+                            await message.delete()
+
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload):
         channel = self.bot.get_channel(payload.channel_id)
@@ -457,10 +465,20 @@ class DebateRooms(commands.Cog, name="Debate"):
             )
         room.match = None  # Clear match
 
+        end_debate_message = await room.current_thread.send(
+            embed=discord.Embed(
+                title="End of Debate",
+                description="No more messages can be sent. "
+                            "All messages are archived for public reference.",
+                color=0xEB6A5C
+            )
+        )
+        await room.current_thread.edit(archived=True, locked=True)
+
         if debaters:
             await room.tc.send(embed=embed)
 
-    async def update_topic(self, room):
+    async def update_topic(self, room: DebateRoom):
         """Update topic of room from current topic."""
         if len(room.vc.members) == 0:
             current_topic = None
@@ -477,6 +495,35 @@ class DebateRooms(commands.Cog, name="Debate"):
                 topic_updated = room.set_current_topic()
                 current_topic = room.current_topic
                 room.start_match(current_topic)
+
+                if room.current_thread:
+                    end_debate_message = await room.current_thread.send(
+                        embed=discord.Embed(
+                            title="End of Debate",
+                            description="No more messages can be sent. "
+                                        "All messages are archived for public reference.",
+                            color=0xEB6A5C
+                        )
+                    )
+                    await room.current_thread.edit(archived=True, locked=True)
+
+                embed = discord.Embed(
+                    title="Start of Debate",
+                    description="Only debaters can send messages here. "
+                                "All messages will be archived for public reference.",
+                    color=0xEB6A5C
+                )
+                if current_topic.text_based:
+                    embed.add_field(name="**Text Based Topic**: ", value=f"{current_topic}")
+                else:
+                    embed.add_field(name="**Voice Based Topic**: ", value=f"{current_topic}")
+                begin_debate_message = await room.tc.send(embed=embed)
+                room.current_thread = await room.tc.start_thread(
+                    name=f"Podium {datetime.datetime.utcnow().strftime('%m-%d-%Y')}",
+                    message=begin_debate_message
+                )
+                for member in room.vc.members:
+                    await room.current_thread.add_user(member)
 
                 for member in room.vc.members:
                     await room.vc.set_permissions(member, overwrite=None)
@@ -524,6 +571,23 @@ class DebateRooms(commands.Cog, name="Debate"):
                         topic_updated = room.set_current_topic()
                         current_topic = room.current_topic
                         room.start_match(current_topic)
+
+                        embed = discord.Embed(
+                                title="Start of Debate",
+                                description="Only debaters can send messages here. "
+                                            "All messages will be archived for public reference.",
+                                color=0xEB6A5C
+                            )
+                        if current_topic.text_based:
+                            embed.add_field(name="**Text Based Topic**: ", value=f"{current_topic}")
+                        else:
+                            embed.add_field(name="**Voice Based Topic**: ", value=f"{current_topic}")
+                        begin_debate_message = await room.tc.send(embed=embed)
+                        room.current_thread = await room.tc.start_thread(
+                            name=f"Podium {datetime.datetime.utcnow().strftime('%m-%d-%Y')}",
+                            message=begin_debate_message
+                        )
+
                         await self.update_im(room.number)
                         for member in room.vc.members:
                             await member.edit(mute=True)
@@ -540,6 +604,16 @@ class DebateRooms(commands.Cog, name="Debate"):
         else:
             for member in room.vc.members:
                 await member.edit(mute=False)
+
+            end_debate_message = await room.current_thread.send(
+                embed=discord.Embed(
+                    title="End of Debate",
+                    description="No more messages can be sent. "
+                                "All messages are archived for public reference.",
+                    color=0xEB6A5C
+                )
+            )
+            await room.current_thread.edit(archived=True, locked=True)
 
         topic_updated = room.set_current_topic()
         current_topic = room.current_topic
@@ -788,6 +862,8 @@ class DebateRooms(commands.Cog, name="Debate"):
             await tc_after.set_permissions(member, overwrite=overwrite)
 
             if room_after.match:
+                await room_after.current_thread.add_user(member)
+
                 if room_after.match.check_debater(member):
                     if room_after.private:
                         if self.roles["role_muted"] in member.roles:
@@ -893,6 +969,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                 await tc_after.set_permissions(member, overwrite=overwrite)
 
                 if room_after.match:
+                    await room_after.current_thread.add_user(member)
                     if room_after.match.check_debater(member):
                         if room_after.private:
                             if self.roles["role_muted"] in member.roles:
@@ -1076,6 +1153,9 @@ class DebateRooms(commands.Cog, name="Debate"):
                     for member in room.vc.members:
                         if member not in room.private_debaters:
                             await member.edit(mute=True)
+
+            await room.current_thread.delete()
+            room.current_thread = None
 
             room.updating_topic = False
 
@@ -2004,6 +2084,15 @@ class DebateRooms(commands.Cog, name="Debate"):
                 description="ELO ratings have been updated.",
             )
             await ctx.send(embed=embed)
+            end_debate_message = await room.current_thread.send(
+                embed=discord.Embed(
+                    title="End of Debate",
+                    description="No more messages can be sent. "
+                                "All messages are archived for public reference.",
+                    color=0xEB6A5C
+                )
+            )
+            await room.current_thread.edit(archived=True, locked=True)
             match.concluding = False
             match.concluded = True
 
