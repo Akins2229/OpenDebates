@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "opendebates"
-version = "0.1.0-alpha.15"
+version = "0.1.0-alpha.16"
 description = "Rating System Bot for Open Debates Discord Server"
 authors = ["Taven <taven@outlook.in>"]
 license = "Apache-2.0"
