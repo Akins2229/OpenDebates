@@ -5,8 +5,8 @@
 <p align="center">
     <br>
     <br>
-    <a href="https://travis-ci.com/OpenDebates/OpenDebates">
-        <img src="https://travis-ci.com/OpenDebates/OpenDebates.svg?branch=master"/>
+    <a href="https://github.com/OpenDebates/OpenDebates/actions/workflows/main.yml">
+        <img src="https://github.com/OpenDebates/OpenDebates/actions/workflows/main.yml/badge.svg"/>
     </a>
     <a href="https://opendebates.readthedocs.io/en/latest/?badge=latest">
         <img src="https://readthedocs.org/projects/opendebates/badge/?version=latest" alt='Documentation Status'/>
