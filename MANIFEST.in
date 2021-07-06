@@ -16,6 +16,8 @@ include tox.ini .travis.yml .readthedocs.yml
 
 include requirements.txt
 
+exclude setup.py
+
 recursive-include .github *
 
 recursive-exclude docs/_build *
