@@ -276,7 +276,10 @@ class DebateRooms(commands.Cog, name="Debate"):
             if message.channel.parent in self.debate_room_tcs:
                 room = self.get_room(self.get_room_number(message.channel.parent))
                 if room.match:
-                    if not room.match.check_debater(message.author) and not message.is_system():
+                    if (
+                        not room.match.check_debater(message.author)
+                        and not message.is_system()
+                    ):
                         if message.author != self.bot.user:
                             await message.delete()
 
@@ -339,7 +342,9 @@ class DebateRooms(commands.Cog, name="Debate"):
             if current_topic.text_based:
                 embed.add_field(name="**Text Based Topic**: ", value=f"{current_topic}")
             elif not current_topic.text_based:
-                embed.add_field(name="**Voice Based Topic**: ", value=f"{current_topic}")
+                embed.add_field(
+                    name="**Voice Based Topic**: ", value=f"{current_topic}"
+                )
         text_channel = self.bot.get_channel(list(self.debate_room_tcs)[room_num - 1].id)
         message = await text_channel.send(embed=embed)
         return message
@@ -365,11 +370,13 @@ class DebateRooms(commands.Cog, name="Debate"):
         if topic:
             if topic.text_based:
                 embed.add_field(
-                    name="**Text Based Topic**: ", value=f"{self.get_room(room_num).current_topic}"
+                    name="**Text Based Topic**: ",
+                    value=f"{self.get_room(room_num).current_topic}",
                 )
             elif not topic.text_based:
                 embed.add_field(
-                    name="**Voice Based Topic**: ", value=f"{self.get_room(room_num).current_topic}"
+                    name="**Voice Based Topic**: ",
+                    value=f"{self.get_room(room_num).current_topic}",
                 )
         try:
             if im:
@@ -469,8 +476,8 @@ class DebateRooms(commands.Cog, name="Debate"):
             embed=discord.Embed(
                 title="End of Debate",
                 description="No more messages can be sent. "
-                            "All messages are archived for public reference.",
-                color=0xEB6A5C
+                "All messages are archived for public reference.",
+                color=0xEB6A5C,
             )
         )
         await room.current_thread.edit(archived=True, locked=True)
@@ -501,8 +508,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                         embed=discord.Embed(
                             title="End of Debate",
                             description="No more messages can be sent. "
-                                        "All messages are archived for public reference.",
-                            color=0xEB6A5C
+                            "All messages are archived for public reference.",
+                            color=0xEB6A5C,
                         )
                     )
                     await room.current_thread.edit(archived=True, locked=True)
@@ -510,17 +517,21 @@ class DebateRooms(commands.Cog, name="Debate"):
                 embed = discord.Embed(
                     title="Start of Debate",
                     description="Only debaters can send messages here. "
-                                "All messages will be archived for public reference.",
-                    color=0xEB6A5C
+                    "All messages will be archived for public reference.",
+                    color=0xEB6A5C,
                 )
                 if current_topic.text_based:
-                    embed.add_field(name="**Text Based Topic**: ", value=f"{current_topic}")
+                    embed.add_field(
+                        name="**Text Based Topic**: ", value=f"{current_topic}"
+                    )
                 else:
-                    embed.add_field(name="**Voice Based Topic**: ", value=f"{current_topic}")
+                    embed.add_field(
+                        name="**Voice Based Topic**: ", value=f"{current_topic}"
+                    )
                 begin_debate_message = await room.tc.send(embed=embed)
                 room.current_thread = await room.tc.start_thread(
                     name=f"Podium {datetime.datetime.utcnow().strftime('%m-%d-%Y')}",
-                    message=begin_debate_message
+                    message=begin_debate_message,
                 )
                 for member in room.vc.members:
                     await room.current_thread.add_user(member)
@@ -573,19 +584,23 @@ class DebateRooms(commands.Cog, name="Debate"):
                         room.start_match(current_topic)
 
                         embed = discord.Embed(
-                                title="Start of Debate",
-                                description="Only debaters can send messages here. "
-                                            "All messages will be archived for public reference.",
-                                color=0xEB6A5C
-                            )
+                            title="Start of Debate",
+                            description="Only debaters can send messages here. "
+                            "All messages will be archived for public reference.",
+                            color=0xEB6A5C,
+                        )
                         if current_topic.text_based:
-                            embed.add_field(name="**Text Based Topic**: ", value=f"{current_topic}")
+                            embed.add_field(
+                                name="**Text Based Topic**: ", value=f"{current_topic}"
+                            )
                         else:
-                            embed.add_field(name="**Voice Based Topic**: ", value=f"{current_topic}")
+                            embed.add_field(
+                                name="**Voice Based Topic**: ", value=f"{current_topic}"
+                            )
                         begin_debate_message = await room.tc.send(embed=embed)
                         room.current_thread = await room.tc.start_thread(
                             name=f"Podium {datetime.datetime.utcnow().strftime('%m-%d-%Y')}",
-                            message=begin_debate_message
+                            message=begin_debate_message,
                         )
 
                         await self.update_im(room.number)
@@ -613,8 +628,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                 embed=discord.Embed(
                     title="End of Debate",
                     description="No more messages can be sent. "
-                                "All messages are archived for public reference.",
-                    color=0xEB6A5C
+                    "All messages are archived for public reference.",
+                    color=0xEB6A5C,
                 )
             )
             await room.current_thread.edit(archived=True, locked=True)
@@ -667,7 +682,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                     Topic(
                         member=ctx.author,
                         message=f"{member} {str(message)}",  # Look carefully
-                        text_based=False
+                        text_based=False,
                     )
                 )
                 if topic_updated:
@@ -688,9 +703,9 @@ class DebateRooms(commands.Cog, name="Debate"):
         aliases=["tt"],
         brief="Set or vote for a text based topic in a debate room.",
         help="Set a text based topic in an empty debate room if you're the first setter. "
-             "If you're not the first to set the topic, then vote on any "
-             "user's topic or propose your own. A successful topic change "
-             "will cause the ELO ratings to be calculated for debaters.",
+        "If you're not the first to set the topic, then vote on any "
+        "user's topic or propose your own. A successful topic change "
+        "will cause the ELO ratings to be calculated for debaters.",
     )
     async def text_topic(
         self, ctx, member: Union[Member, str], *, message: commands.clean_content = ""
@@ -724,14 +739,13 @@ class DebateRooms(commands.Cog, name="Debate"):
                     Topic(
                         member=ctx.author,
                         message=f"{member} {str(message)}",  # Look carefully
-                        text_based=True
-
+                        text_based=True,
                     )
                 )
                 if topic_updated:
                     embed = discord.Embed(
                         title="⚠️ Votes on your topic have been reset "
-                              "because you updated it! ⚠️"
+                        "because you updated it! ⚠️"
                     )
                     await ctx.channel.send(embed=embed, delete_after=10)
         room.updating_topic = True
@@ -2096,8 +2110,8 @@ class DebateRooms(commands.Cog, name="Debate"):
                 embed=discord.Embed(
                     title="End of Debate",
                     description="No more messages can be sent. "
-                                "All messages are archived for public reference.",
-                    color=0xEB6A5C
+                    "All messages are archived for public reference.",
+                    color=0xEB6A5C,
                 )
             )
             await room.current_thread.edit(archived=True, locked=True)

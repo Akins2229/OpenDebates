@@ -7,7 +7,9 @@ from discord import Thread
 
 
 class Topic:
-    def __init__(self, member: discord.Member, message: str = "", text_based: bool = False):
+    def __init__(
+        self, member: discord.Member, message: str = "", text_based: bool = False
+    ):
         self.author = member
         self.message = message
         self.voters = [self.author]

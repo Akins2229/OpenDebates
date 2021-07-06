@@ -268,11 +268,15 @@ class ServerSetup(commands.Cog, name="Server Setup"):
 
         # Setup Basic Roles
         self.role_citizen = await guild.create_role(
-            name="Citizen", permissions=Permissions(permissions=103183404608), hoist=False
+            name="Citizen",
+            permissions=Permissions(permissions=103183404608),
+            hoist=False,
         )
 
         self.role_member = await guild.create_role(
-            name="Member", permissions=Permissions(permissions=103115983936), hoist=False
+            name="Member",
+            permissions=Permissions(permissions=103115983936),
+            hoist=False,
         )
 
         # Setup Miscellaneous Roles

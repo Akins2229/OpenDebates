@@ -26,7 +26,7 @@ _staff_team_permissive = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=True,
     use_threads=True,
-    use_private_threads=True
+    use_private_threads=True,
 )
 
 _no_permissions = PermissionOverwrite(
@@ -55,7 +55,7 @@ _no_permissions = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=False,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 lockdown_permissions = PermissionOverwrite(
@@ -110,7 +110,7 @@ _neutral_read_only_permissions = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=False,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 _read_only_permissions = PermissionOverwrite(
@@ -139,7 +139,7 @@ _read_only_permissions = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=False,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 
@@ -167,7 +167,7 @@ _muted_read_only_permissions = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=False,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 _moderation_send_all_and_read_all_permission = PermissionOverwrite(
@@ -196,7 +196,7 @@ _moderation_send_all_and_read_all_permission = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=True,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 _moderation_privileged_permissions = PermissionOverwrite(
@@ -225,7 +225,7 @@ _moderation_privileged_permissions = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=True,
     use_threads=True,
-    use_private_threads=True
+    use_private_threads=True,
 )
 
 _staff_team_read_only = PermissionOverwrite(
@@ -254,7 +254,7 @@ _staff_team_read_only = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=False,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 _read_and_send_only = PermissionOverwrite(
@@ -283,7 +283,7 @@ _read_and_send_only = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=False,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 _citizen_general_perms = PermissionOverwrite(
@@ -364,7 +364,7 @@ _moderator_general_perms = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=True,
     use_threads=True,
-    use_private_threads=True
+    use_private_threads=True,
 )
 
 _moderator_debate_perms = PermissionOverwrite(
@@ -420,7 +420,7 @@ _senior_mod_general_perms = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=True,
     use_threads=True,
-    use_private_threads=True
+    use_private_threads=True,
 )
 
 _moderator_log_permissions = PermissionOverwrite(
@@ -605,7 +605,7 @@ _neutral_permissions = PermissionOverwrite(
     manage_webhooks=None,
     manage_threads=None,
     use_threads=None,
-    use_private_threads=None
+    use_private_threads=None,
 )
 
 _neutral_debate_category_perms = PermissionOverwrite(
@@ -634,7 +634,7 @@ _neutral_debate_category_perms = PermissionOverwrite(
     manage_webhooks=None,
     manage_threads=None,
     use_threads=None,
-    use_private_threads=None
+    use_private_threads=None,
 )
 
 _neutral_debate_tc_permissions = PermissionOverwrite(
@@ -663,7 +663,7 @@ _neutral_debate_tc_permissions = PermissionOverwrite(
     manage_webhooks=None,
     manage_threads=False,
     use_threads=False,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 all_channel_overwrites = {
@@ -739,7 +739,7 @@ all_channel_overwrites = {
             manage_webhooks=False,
             manage_threads=False,
             use_threads=False,
-            use_private_threads=False
+            use_private_threads=False,
         ),
     },
     "community_updates": {
