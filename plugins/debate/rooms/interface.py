@@ -530,8 +530,12 @@ class DebateRooms(commands.Cog, name="Debate"):
                     await self.update_im(room.number)
                     return
         else:
-            for member in room.vc.members:
-                await member.edit(mute=False)
+            if room.private:
+                for member in room.private_debaters:
+                    await member.edit(mute=False)
+            else:
+                for member in room.vc.members:
+                    await member.edit(mute=False)
 
         topic_updated = room.set_current_topic()
         current_topic = room.current_topic
@@ -1861,8 +1865,12 @@ class DebateRooms(commands.Cog, name="Debate"):
                     if debater.member in room.vc.members:
                         await debater.member.edit(mute=True)
             else:
-                for member in room.vc.members:
-                    await member.edit(mute=False)
+                if room.private:
+                    for member in room.private_debaters:
+                        await member.edit(mute=False)
+                else:
+                    for member in room.vc.members:
+                        await member.edit(mute=False)
 
             for debater in debaters:
                 await room.vc.set_permissions(debater.member, overwrite=None)

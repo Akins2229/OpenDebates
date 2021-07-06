@@ -8,14 +8,15 @@ include AUTHORS.rst
 include CHANGELOG.rst
 include CONTRIBUTING.rst
 include LICENSE
-include README.rst
-include DESCRIPTION.rst
+include README.md
 
 include CODE_OF_CONDUCT.md
 
 include tox.ini .travis.yml .readthedocs.yml
 
 include requirements.txt
+
+exclude setup.py
 
 recursive-include .github *
 
