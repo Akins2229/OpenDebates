@@ -36,5 +36,6 @@ jobs:
               poetry build
               poetry run twine check dist/*
               poetry run check-manifest
+              poetry run black --check .
               poetry run sphinx-build -E -b html docs tox_temps/docs
               poetry run sphinx-build -b linkcheck docs tox_temps/docs
