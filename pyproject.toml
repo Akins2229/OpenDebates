@@ -43,14 +43,19 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
+erin = "^0.1.0-alpha.3"
 
 [tool.poetry.dev-dependencies]
 Sphinx = "^4.0.2"
 sphinx-rtd-theme = "^0.5.2"
 bump2version = "^1.0.1"
-
-[tool.poetry.scripts]
-erin = 'erin.__main__:main'
+tox = "^3.23.1"
+check-manifest = "^0.46"
+pylama = "^7.7.1"
+readme-renderer = {extras = ["md"], version = "^29.0"}
+Pygments = "^2.9.0"
+isort = "^5.9.1"
+twine = "^3.4.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
