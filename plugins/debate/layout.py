@@ -780,7 +780,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             )
         )
 
-        for channel in self.channels['category_community'].channels:
+        for channel in self.channels["category_community"].channels:
             await channel.edit(sync_permissions=True)
 
         await self.channels["category_debate"].edit(
@@ -804,26 +804,16 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             await vc.edit(sync_permissions=True)
 
             if _channel_num != 1:
-                await vc.set_permissions(
-                    self.roles["role_member"], overwrite=BASE
-                )
+                await vc.set_permissions(self.roles["role_member"], overwrite=BASE)
                 await vc.set_permissions(
                     self.roles["role_citizen"],
                     overwrite=EVERYONE_NO_READ,
                 )
-                await vc.set_permissions(
-                    self.roles["role_moderator"], connect=False
-                )
-                await vc.set_permissions(
-                    self.roles["role_director"], connect=False
-                )
+                await vc.set_permissions(self.roles["role_moderator"], connect=False)
+                await vc.set_permissions(self.roles["role_director"], connect=False)
             else:
-                await vc.set_permissions(
-                    self.roles["role_member"], overwrite=BASE
-                )
-                await vc.set_permissions(
-                    self.roles["role_citizen"], overwrite=BASE
-                )
+                await vc.set_permissions(self.roles["role_member"], overwrite=BASE)
+                await vc.set_permissions(self.roles["role_citizen"], overwrite=BASE)
 
     @commands.has_role("Director")
     @commands.command(

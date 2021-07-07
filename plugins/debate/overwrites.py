@@ -257,8 +257,7 @@ EVERYONE_EXPLICIT_READ_ONLY: PermissionOverwrite = PermissionOverwrite(
 )
 
 EVERYONE_SEND_ONLY: PermissionOverwrite = PermissionOverwrite(
-    read_messages=True,
-    view_channel=True
+    read_messages=True, view_channel=True
 )
 
 EVERYONE_NEGATIVE: PermissionOverwrite = PermissionOverwrite(
@@ -286,9 +285,7 @@ EVERYONE_NEGATIVE: PermissionOverwrite = PermissionOverwrite(
     manage_webhooks=False,
 )
 
-EVERYONE_NO_READ: PermissionOverwrite = PermissionOverwrite(
-    view_channel=False
-)
+EVERYONE_NO_READ: PermissionOverwrite = PermissionOverwrite(view_channel=False)
 
 
 UNLOCKED_OVERWRITE_MAP = {
@@ -314,7 +311,7 @@ UNLOCKED_OVERWRITE_MAP = {
         "role_detained": EVERYONE_NEGATIVE,
         "role_muted": EVERYONE_NEGATIVE,
         "role_super_muted": EVERYONE_NEGATIVE,
-        "role_everyone": EVERYONE_SEND_ONLY
+        "role_everyone": EVERYONE_SEND_ONLY,
     },
     "community_updates": {
         "role_warden": GLOBAL_SAFE,
@@ -461,7 +458,7 @@ LOCKED_OVERWRITE_MAP = {
         "role_detained": EVERYONE_NEGATIVE,
         "role_muted": EVERYONE_NEGATIVE,
         "role_super_muted": EVERYONE_NEGATIVE,
-        "role_everyone": EVERYONE_SEND_ONLY
+        "role_everyone": EVERYONE_SEND_ONLY,
     },
     "community_updates": {
         "role_warden": GLOBAL_SAFE,
@@ -613,5 +610,5 @@ def generate_overwrite(ctx, roles, channel: str, locked: bool = False):
         roles["role_detained"]: overwrites["role_detained"],
         roles["role_muted"]: overwrites["role_muted"],
         roles["role_super_muted"]: overwrites["role_super_muted"],
-        ctx.guild.default_role: overwrites["role_everyone"]
+        ctx.guild.default_role: overwrites["role_everyone"],
     }
