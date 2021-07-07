@@ -5,13 +5,7 @@ from discord import ChannelType, Colour, PermissionOverwrite, Permissions, utils
 from discord.ext import commands
 from discord.ext.commands import BucketType
 
-from plugins.debate.overwrites import (
-    generate_overwrite,
-    lockdown_citizen_general_perms,
-    lockdown_debate_member_perms,
-    lockdown_permissions,
-    _neutral_debate_tc_permissions,
-)
+from plugins.debate.overwrites import generate_overwrite, EVERYONE_NO_READ, BASE
 from plugins.debate.rooms.interface import DebateRooms
 
 
@@ -761,7 +755,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         response = discord.Embed(color=0x696969, title=title)
         progress_message = await ctx.channel.send(embed=response)
 
-        await self.lock_all_channels()
+        await self.lock_all_channels(ctx)
 
         await self.bot.cogs["Debate"].cancel_all_matches()
 
@@ -769,202 +763,32 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         response = discord.Embed(color=0x77B255, title="✅ Server Locked Down")
         await progress_message.edit(embed=response)
 
-    async def lock_all_channels(self):
-        await self.channels["tc_commands"].set_permissions(
-            self.roles["role_member"], overwrite=lockdown_permissions
-        )
-        await self.channels["tc_commands"].set_permissions(
-            self.roles["role_citizen"], overwrite=lockdown_permissions
-        )
-        await self.channels["category_community"].set_permissions(
-            self.roles["role_member"], overwrite=lockdown_permissions
-        )
-        await self.channels["category_community"].set_permissions(
-            self.roles["role_citizen"], overwrite=lockdown_permissions
-        )
-
-        await self.channels["category_debate"].set_permissions(
-            self.roles["role_member"], overwrite=lockdown_debate_member_perms
-        )
-
-        await self.channels["category_debate"].set_permissions(
-            self.roles["role_citizen"], overwrite=lockdown_citizen_general_perms
-        )
-
-        for _channel_num in range(1, 21):
-            vc = discord.utils.get(
-                self.guild.voice_channels, name=f"Debate {_channel_num}"
+    async def lock_all_channels(self, ctx):
+        await self.channels["category_interface"].edit(
+            overwrites=generate_overwrite(
+                ctx, self.roles, channel="interface", locked=True
             )
-            tc = discord.utils.get(
-                self.guild.text_channels, name=f"debate-{_channel_num}"
+        )
+        for channel in self.channels["category_interface"].channels:
+            await channel.edit(sync_permissions=True)
+        await self.channels["tc_commands"].edit(
+            overwrites=generate_overwrite(
+                ctx, self.roles, channel="commands", locked=True
             )
-            await tc.set_permissions(
-                self.roles["role_member"],
-                create_instant_invite=True,
-                manage_channels=None,
-                add_reactions=None,
-                priority_speaker=None,
-                stream=None,
-                read_messages=False,
-                view_channel=False,
-                send_messages=None,
-                send_tts_messages=None,
-                manage_messages=None,
-                embed_links=None,
-                attach_files=None,
-                read_message_history=None,
-                mention_everyone=None,
-                external_emojis=None,
-                connect=None,
-                speak=None,
-                mute_members=None,
-                deafen_members=None,
-                move_members=None,
-                use_voice_activation=None,
-                manage_permissions=None,
-                manage_webhooks=None,
+        )
+        await self.channels["category_community"].edit(
+            overwrites=generate_overwrite(
+                ctx, self.roles, channel="community", locked=True
             )
-            await tc.set_permissions(
-                self.roles["role_citizen"],
-                create_instant_invite=True,
-                manage_channels=None,
-                add_reactions=None,
-                priority_speaker=None,
-                stream=None,
-                read_messages=False,
-                view_channel=False,
-                send_messages=None,
-                send_tts_messages=None,
-                manage_messages=None,
-                embed_links=None,
-                attach_files=None,
-                read_message_history=None,
-                mention_everyone=None,
-                external_emojis=None,
-                connect=None,
-                speak=None,
-                mute_members=None,
-                deafen_members=None,
-                move_members=None,
-                use_voice_activation=None,
-                manage_permissions=None,
-                manage_webhooks=None,
-            )
-
-            if _channel_num != 1:
-                await vc.set_permissions(
-                    self.roles["role_member"],
-                    create_instant_invite=True,
-                    manage_channels=None,
-                    add_reactions=None,
-                    priority_speaker=None,
-                    stream=None,
-                    read_messages=False,
-                    view_channel=False,
-                    send_messages=None,
-                    send_tts_messages=None,
-                    manage_messages=None,
-                    embed_links=None,
-                    attach_files=None,
-                    read_message_history=None,
-                    mention_everyone=None,
-                    external_emojis=None,
-                    connect=None,
-                    speak=None,
-                    mute_members=None,
-                    deafen_members=None,
-                    move_members=None,
-                    use_voice_activation=None,
-                    manage_permissions=None,
-                    manage_webhooks=None,
-                )
-                await vc.set_permissions(
-                    self.roles["role_citizen"],
-                    create_instant_invite=True,
-                    manage_channels=None,
-                    add_reactions=None,
-                    priority_speaker=None,
-                    stream=None,
-                    read_messages=False,
-                    view_channel=False,
-                    send_messages=None,
-                    send_tts_messages=None,
-                    manage_messages=None,
-                    embed_links=None,
-                    attach_files=None,
-                    read_message_history=None,
-                    mention_everyone=None,
-                    external_emojis=None,
-                    connect=None,
-                    speak=None,
-                    mute_members=None,
-                    deafen_members=None,
-                    move_members=None,
-                    use_voice_activation=None,
-                    manage_permissions=None,
-                    manage_webhooks=None,
-                )
-            else:
-                await vc.set_permissions(
-                    self.roles["role_member"],
-                    create_instant_invite=True,
-                    manage_channels=None,
-                    add_reactions=None,
-                    priority_speaker=None,
-                    stream=None,
-                    read_messages=None,
-                    view_channel=None,
-                    send_messages=None,
-                    send_tts_messages=None,
-                    manage_messages=None,
-                    embed_links=None,
-                    attach_files=None,
-                    read_message_history=None,
-                    mention_everyone=None,
-                    external_emojis=None,
-                    connect=None,
-                    speak=None,
-                    mute_members=None,
-                    deafen_members=None,
-                    move_members=None,
-                    use_voice_activation=None,
-                    manage_permissions=None,
-                    manage_webhooks=None,
-                )
-                await vc.set_permissions(
-                    self.roles["role_citizen"],
-                    create_instant_invite=True,
-                    manage_channels=None,
-                    add_reactions=None,
-                    priority_speaker=None,
-                    stream=None,
-                    read_messages=None,
-                    view_channel=None,
-                    send_messages=None,
-                    send_tts_messages=None,
-                    manage_messages=None,
-                    embed_links=None,
-                    attach_files=None,
-                    read_message_history=None,
-                    mention_everyone=None,
-                    external_emojis=None,
-                    connect=None,
-                    speak=None,
-                    mute_members=None,
-                    deafen_members=None,
-                    move_members=None,
-                    use_voice_activation=None,
-                    manage_permissions=None,
-                    manage_webhooks=None,
-                )
-
-    async def lock_debate_channels(self):
-        await self.channels["category_debate"].set_permissions(
-            self.roles["role_member"], overwrite=lockdown_debate_member_perms
         )
 
-        await self.channels["category_debate"].set_permissions(
-            self.roles["role_citizen"], overwrite=lockdown_citizen_general_perms
+        for channel in self.channels["category_community"].channels:
+            await channel.edit(sync_permissions=True)
+
+        await self.channels["category_debate"].edit(
+            overwrites=generate_overwrite(
+                ctx, self.roles, channel="debate", locked=True
+            )
         )
 
         for _channel_num in range(1, 21):
@@ -974,165 +798,24 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             tc = discord.utils.get(
                 self.guild.text_channels, name=f"debate-{_channel_num}"
             )
-            await tc.set_permissions(
-                self.roles["role_member"],
-                create_instant_invite=True,
-                manage_channels=None,
-                add_reactions=None,
-                priority_speaker=None,
-                stream=None,
-                read_messages=False,
-                view_channel=False,
-                send_messages=None,
-                send_tts_messages=None,
-                manage_messages=None,
-                embed_links=None,
-                attach_files=None,
-                read_message_history=None,
-                mention_everyone=None,
-                external_emojis=None,
-                connect=None,
-                speak=None,
-                mute_members=None,
-                deafen_members=None,
-                move_members=None,
-                use_voice_activation=None,
-                manage_permissions=None,
-                manage_webhooks=None,
+            await tc.edit(
+                overwrites=generate_overwrite(
+                    ctx, self.roles, channel="debate-#", locked=True
+                )
             )
-            await tc.set_permissions(
-                self.roles["role_citizen"],
-                create_instant_invite=True,
-                manage_channels=None,
-                add_reactions=None,
-                priority_speaker=None,
-                stream=None,
-                read_messages=False,
-                view_channel=False,
-                send_messages=None,
-                send_tts_messages=None,
-                manage_messages=None,
-                embed_links=None,
-                attach_files=None,
-                read_message_history=None,
-                mention_everyone=None,
-                external_emojis=None,
-                connect=None,
-                speak=None,
-                mute_members=None,
-                deafen_members=None,
-                move_members=None,
-                use_voice_activation=None,
-                manage_permissions=None,
-                manage_webhooks=None,
-            )
+            await vc.edit(sync_permissions=True)
 
             if _channel_num != 1:
-                await vc.set_permissions(
-                    self.roles["role_member"],
-                    create_instant_invite=True,
-                    manage_channels=None,
-                    add_reactions=None,
-                    priority_speaker=None,
-                    stream=None,
-                    read_messages=False,
-                    view_channel=False,
-                    send_messages=None,
-                    send_tts_messages=None,
-                    manage_messages=None,
-                    embed_links=None,
-                    attach_files=None,
-                    read_message_history=None,
-                    mention_everyone=None,
-                    external_emojis=None,
-                    connect=None,
-                    speak=None,
-                    mute_members=None,
-                    deafen_members=None,
-                    move_members=None,
-                    use_voice_activation=None,
-                    manage_permissions=None,
-                    manage_webhooks=None,
-                )
+                await vc.set_permissions(self.roles["role_member"], overwrite=BASE)
                 await vc.set_permissions(
                     self.roles["role_citizen"],
-                    create_instant_invite=True,
-                    manage_channels=None,
-                    add_reactions=None,
-                    priority_speaker=None,
-                    stream=None,
-                    read_messages=False,
-                    view_channel=False,
-                    send_messages=None,
-                    send_tts_messages=None,
-                    manage_messages=None,
-                    embed_links=None,
-                    attach_files=None,
-                    read_message_history=None,
-                    mention_everyone=None,
-                    external_emojis=None,
-                    connect=None,
-                    speak=None,
-                    mute_members=None,
-                    deafen_members=None,
-                    move_members=None,
-                    use_voice_activation=None,
-                    manage_permissions=None,
-                    manage_webhooks=None,
+                    overwrite=EVERYONE_NO_READ,
                 )
+                await vc.set_permissions(self.roles["role_moderator"], connect=False)
+                await vc.set_permissions(self.roles["role_director"], connect=False)
             else:
-                await vc.set_permissions(
-                    self.roles["role_member"],
-                    create_instant_invite=True,
-                    manage_channels=None,
-                    add_reactions=None,
-                    priority_speaker=None,
-                    stream=None,
-                    read_messages=None,
-                    view_channel=None,
-                    send_messages=None,
-                    send_tts_messages=None,
-                    manage_messages=None,
-                    embed_links=None,
-                    attach_files=None,
-                    read_message_history=None,
-                    mention_everyone=None,
-                    external_emojis=None,
-                    connect=None,
-                    speak=None,
-                    mute_members=None,
-                    deafen_members=None,
-                    move_members=None,
-                    use_voice_activation=None,
-                    manage_permissions=None,
-                    manage_webhooks=None,
-                )
-                await vc.set_permissions(
-                    self.roles["role_citizen"],
-                    create_instant_invite=True,
-                    manage_channels=None,
-                    add_reactions=None,
-                    priority_speaker=None,
-                    stream=None,
-                    read_messages=None,
-                    view_channel=None,
-                    send_messages=None,
-                    send_tts_messages=None,
-                    manage_messages=None,
-                    embed_links=None,
-                    attach_files=None,
-                    read_message_history=None,
-                    mention_everyone=None,
-                    external_emojis=None,
-                    connect=None,
-                    speak=None,
-                    mute_members=None,
-                    deafen_members=None,
-                    move_members=None,
-                    use_voice_activation=None,
-                    manage_permissions=None,
-                    manage_webhooks=None,
-                )
+                await vc.set_permissions(self.roles["role_member"], overwrite=BASE)
+                await vc.set_permissions(self.roles["role_citizen"], overwrite=BASE)
 
     @commands.has_role("Director")
     @commands.command(
@@ -1148,18 +831,62 @@ class ServerSetup(commands.Cog, name="Server Setup"):
         response = discord.Embed(color=0x696969, title=title)
         progress_message = await ctx.channel.send(embed=response)
 
+        await self.channels["category_information"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "information")
+        )
+
+        await self.channels["tc_verification"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "verification")
+        )
+
+        await self.channels["tc_community_updates"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "community_updates")
+        )
+
+        await self.channels["category_moderation"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "moderation")
+        )
+
+        await self.channels["tc_director_commands"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "director_commands")
+        )
+
+        await self.channels["tc_isolation"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "isolation")
+        )
+
+        await self.channels["category_interface"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "interface")
+        )
+
         await self.channels["tc_commands"].edit(
             overwrites=generate_overwrite(ctx, self.roles, "commands")
         )
+
         await self.channels["category_community"].edit(
             overwrites=generate_overwrite(ctx, self.roles, "community")
         )
-        await self.channels["tc_general"].edit(sync_permissions=True)
-        await self.channels["tc_serious"].edit(sync_permissions=True)
-        await self.channels["tc_meme_dump"].edit(sync_permissions=True)
+
         await self.channels["category_debate"].edit(
             overwrites=generate_overwrite(ctx, self.roles, "debate")
         )
+
+        await self.channels["category_logs"].edit(
+            overwrites=generate_overwrite(ctx, self.roles, "logs")
+        )
+
+        # Sync Channels
+        await self.channels["tc_rules"].edit(sync_permissions=True)
+        await self.channels["tc_about"].edit(sync_permissions=True)
+        await self.channels["tc_announcements"].edit(sync_permissions=True)
+        await self.channels["tc_mod_commands"].edit(sync_permissions=True)
+        await self.channels["tc_debate_feed"].edit(sync_permissions=True)
+        await self.channels["tc_general"].edit(sync_permissions=True)
+        await self.channels["tc_serious"].edit(sync_permissions=True)
+        await self.channels["tc_meme_dump"].edit(sync_permissions=True)
+
+        for channel in self.channels["category_logs"].channels:
+            await channel.edit(sync_permissions=True)
 
         for _channel_num in range(1, 21):
             vc = discord.utils.get(
@@ -1171,16 +898,22 @@ class ServerSetup(commands.Cog, name="Server Setup"):
             await vc.edit(sync_permissions=True)
             overwrite = PermissionOverwrite(view_channel=False)
             if _channel_num != 1:
+                await vc.edit(sync_permissions=True)
+
                 await vc.set_permissions(
                     self.roles["role_citizen"], overwrite=overwrite
                 )
 
                 await vc.set_permissions(self.roles["role_member"], overwrite=overwrite)
+
+                await vc.set_permissions(self.roles["role_moderator"], connect=True)
+
+                await vc.set_permissions(self.roles["role_director"], connect=True)
             await tc.set_permissions(
-                self.roles["role_member"], overwrite=_neutral_debate_tc_permissions
+                self.roles["role_member"], overwrite=EVERYONE_NO_READ
             )
             await tc.set_permissions(
-                self.roles["role_citizen"], overwrite=_neutral_debate_tc_permissions
+                self.roles["role_citizen"], overwrite=EVERYONE_NO_READ
             )
 
         # Confirm server is locked down
