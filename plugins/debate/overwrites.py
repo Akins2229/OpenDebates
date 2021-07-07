@@ -28,6 +28,9 @@ GLOBAL_SAFE: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=True,
     manage_webhooks=False,
+    manage_threads=True,
+    use_threads=True,
+    use_private_threads=True,
 )
 
 # Director Level
@@ -54,6 +57,9 @@ DIRECTOR_BASE: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=True,
+    use_threads=True,
+    use_private_threads=True,
 )
 
 DIRECTOR_READ_ONLY: PermissionOverwrite = PermissionOverwrite(
@@ -79,6 +85,9 @@ DIRECTOR_READ_ONLY: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False,
 )
 
 DIRECTOR_MODERATION: PermissionOverwrite = PermissionOverwrite(
@@ -104,6 +113,9 @@ DIRECTOR_MODERATION: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=True,
+    use_private_threads=True
 )
 
 DIRECTOR_LOGS: PermissionOverwrite = PermissionOverwrite(
@@ -129,6 +141,9 @@ DIRECTOR_LOGS: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False,
 )
 
 # Moderator Level
@@ -154,6 +169,9 @@ MODERATOR_BASE: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=True,
+    use_threads=True,
+    use_private_threads=True,
 )
 
 MODERATOR_MODERATION: PermissionOverwrite = PermissionOverwrite(
@@ -179,6 +197,9 @@ MODERATOR_MODERATION: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=True,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=True,
+    use_private_threads=True,
 )
 
 # Citizen Level
@@ -205,6 +226,9 @@ CITIZEN_REACT_ONLY: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False,
 )
 
 # Everyone Level
@@ -230,6 +254,9 @@ EVERYONE_READ_ONLY: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False,
 )
 
 EVERYONE_EXPLICIT_READ_ONLY: PermissionOverwrite = PermissionOverwrite(
@@ -254,6 +281,9 @@ EVERYONE_EXPLICIT_READ_ONLY: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False
 )
 
 EVERYONE_SEND_ONLY: PermissionOverwrite = PermissionOverwrite(
@@ -283,6 +313,9 @@ EVERYONE_NEGATIVE: PermissionOverwrite = PermissionOverwrite(
     use_voice_activation=False,
     manage_permissions=False,
     manage_webhooks=False,
+    manage_threads=False,
+    use_threads=False,
+    use_private_threads=False
 )
 
 EVERYONE_NO_READ: PermissionOverwrite = PermissionOverwrite(view_channel=False)
