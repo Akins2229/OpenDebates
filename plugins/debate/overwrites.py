@@ -291,7 +291,7 @@ EVERYONE_NO_READ: PermissionOverwrite = PermissionOverwrite(view_channel=False)
 UNLOCKED_OVERWRITE_MAP = {
     "information": {
         "role_warden": GLOBAL_SAFE,
-        "role_director": DIRECTOR_READ_ONLY,
+        "role_director": DIRECTOR_BASE,
         "role_moderator": EVERYONE_READ_ONLY,
         "role_citizen": EVERYONE_READ_ONLY,
         "role_member": EVERYONE_READ_ONLY,
