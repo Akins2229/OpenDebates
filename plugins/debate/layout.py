@@ -894,9 +894,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                 ctx.guild.text_channels, name=f"debate-{_channel_num}"
             )
             await vc.edit(sync_permissions=True)
-            await tc.edit(
-                overwrites=generate_overwrite(ctx, self.roles, "debate-#")
-            )
+            await tc.edit(overwrites=generate_overwrite(ctx, self.roles, "debate-#"))
             overwrite = PermissionOverwrite(view_channel=False)
             if _channel_num != 1:
                 await vc.edit(sync_permissions=True)
