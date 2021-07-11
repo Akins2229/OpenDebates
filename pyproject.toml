@@ -44,7 +44,7 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-erin = "^0.1.0-alpha.3"
+erin = "^0.1.0-alpha.4"
 
 [tool.poetry.dev-dependencies]
 Sphinx = "^4.0.2"
