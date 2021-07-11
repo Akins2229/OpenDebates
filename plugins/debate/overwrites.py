@@ -115,7 +115,7 @@ DIRECTOR_MODERATION: PermissionOverwrite = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=True,
-    use_private_threads=True
+    use_private_threads=True,
 )
 
 DIRECTOR_LOGS: PermissionOverwrite = PermissionOverwrite(
@@ -283,7 +283,7 @@ EVERYONE_EXPLICIT_READ_ONLY: PermissionOverwrite = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=False,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 EVERYONE_SEND_ONLY: PermissionOverwrite = PermissionOverwrite(
@@ -315,7 +315,7 @@ EVERYONE_NEGATIVE: PermissionOverwrite = PermissionOverwrite(
     manage_webhooks=False,
     manage_threads=False,
     use_threads=False,
-    use_private_threads=False
+    use_private_threads=False,
 )
 
 EVERYONE_NO_READ: PermissionOverwrite = PermissionOverwrite(view_channel=False)
