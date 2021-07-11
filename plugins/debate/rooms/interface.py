@@ -624,15 +624,17 @@ class DebateRooms(commands.Cog, name="Debate"):
                 for member in room.vc.members:
                     await member.edit(mute=False)
 
-            end_debate_message = await room.current_thread.send(
-                embed=discord.Embed(
-                    title="End of Debate",
-                    description="No more messages can be sent. "
-                    "All messages are archived for public reference.",
-                    color=0xEB6A5C,
+            if room.current_thread:
+                end_debate_message = await room.current_thread.send(
+                    embed=discord.Embed(
+                        title="End of Debate",
+                        description="No more messages can be sent. "
+                        "All messages are archived for public reference.",
+                        color=0xEB6A5C,
+                    )
                 )
-            )
-            await room.current_thread.edit(archived=True, locked=True)
+                await room.current_thread.edit(archived=True, locked=True)
+                room.current_thread = None
 
         topic_updated = room.set_current_topic()
         current_topic = room.current_topic
@@ -2106,15 +2108,15 @@ class DebateRooms(commands.Cog, name="Debate"):
                 description="ELO ratings have been updated.",
             )
             await ctx.send(embed=embed)
-            end_debate_message = await room.current_thread.send(
-                embed=discord.Embed(
-                    title="End of Debate",
-                    description="No more messages can be sent. "
-                    "All messages are archived for public reference.",
-                    color=0xEB6A5C,
-                )
-            )
-            await room.current_thread.edit(archived=True, locked=True)
+            # end_debate_message = await room.current_thread.send(
+            #     embed=discord.Embed(
+            #         title="End of Debate",
+            #         description="No more messages can be sent. "
+            #         "All messages are archived for public reference.",
+            #         color=0xEB6A5C,
+            #     )
+            # )
+            # await room.current_thread.edit(archived=True, locked=True)
             match.concluding = False
             match.concluded = True
 
