@@ -896,6 +896,7 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                 ctx.guild.text_channels, name=f"debate-{_channel_num}"
             )
             await vc.edit(sync_permissions=True)
+            await tc.edit(overwrites=generate_overwrite(ctx, self.roles, "debate-#"))
             overwrite = PermissionOverwrite(view_channel=False)
             if _channel_num != 1:
                 await vc.edit(sync_permissions=True)
@@ -911,9 +912,6 @@ class ServerSetup(commands.Cog, name="Server Setup"):
                 await vc.set_permissions(self.roles["role_director"], connect=True)
             await tc.set_permissions(
                 self.roles["role_member"], overwrite=EVERYONE_NO_READ
-            )
-            await tc.set_permissions(
-                self.roles["role_citizen"], overwrite=EVERYONE_NO_READ
             )
 
         # Confirm server is locked down
