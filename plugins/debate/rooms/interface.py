@@ -1116,21 +1116,27 @@ class DebateRooms(commands.Cog, name="Debate"):
     async def on_member_join(self, member):
         if member.bot:
             return
-        await self.db.upsert(member, elo=1500)
-        await member.add_roles(
-            member.guild.get_role(self.elo_role_maps[800]),
-            reason="Automatically added since a new user.",
-        )
 
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
         document = await self.db[self.db.database].MemberStates.find_one(
             {"member_id": member.id}
         )
-        if document:
-            await self.db[self.db.database].MemberStates.delete_one(
-                {"member_id": member.id}
+        if not document:
+            await self.db.upsert(member, elo=1500)
+            await member.add_roles(
+                member.guild.get_role(self.elo_role_maps[800]),
+                reason="Automatically added since a new user.",
             )
+        else:
+            elo = await self.db.get(member, state="elo")
+            if elo:
+                for key, val in self.elo_role_maps.items():
+                    if key < elo:
+                        await member.add_roles(
+                            member.guild.get_role(self.elo_role_maps[key]),
+                            reason="Automatically added during repair-elo.",
+                        )
+                        break
+
 
     @only_debate_channels()
     @disabled_while_concluding()
