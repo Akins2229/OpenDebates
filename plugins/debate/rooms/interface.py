@@ -972,7 +972,6 @@ class DebateRooms(commands.Cog, name="Debate"):
                         )
                         break
 
-
     @only_debate_channels()
     @disabled_while_concluding()
     @disabled_while_updating_topic()
