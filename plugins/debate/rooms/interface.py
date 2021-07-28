@@ -1268,7 +1268,7 @@ class DebateRooms(commands.Cog, name="Debate"):
         description = ""
         count = 0
         async for elo_mapping in elo_cursor:
-            if count == 11:
+            if count == 10:
                 break
             member = guild.get_member(elo_mapping["member_id"])
             if not member:
