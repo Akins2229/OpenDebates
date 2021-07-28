@@ -1263,20 +1263,23 @@ class DebateRooms(commands.Cog, name="Debate"):
             .MemberStates.find()
             .sort("elo", pymongo.DESCENDING)
         )
-        elo_mappings = await elo_cursor.to_list(length=10)
+
         guild = ctx.guild
         description = ""
         count = 0
-        for mapping in elo_mappings:
-            member = guild.get_member(mapping["member_id"])
+        async for elo_mapping in elo_cursor:
+            member = guild.get_member(elo_mapping["member_id"])
+            if not member:
+                continue
             if (
                 self.roles["role_member"] in member.roles
                 or self.roles["role_citizen"] in member.roles
             ):
                 count += 1
                 description += (
-                    f"`{count: 03d}` {member.mention} • {str(mapping['elo'])}\n"
+                    f"`{count: 03d}` {member.mention} • {str(elo_mapping['elo'])}\n"
                 )
+
         embed = discord.Embed(title="ELO Leaderboard", description=description)
         await ctx.send(embed=embed)
 
