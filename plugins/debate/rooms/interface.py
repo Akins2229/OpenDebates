@@ -529,7 +529,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                         name="**Voice Based Topic**: ", value=f"{current_topic}"
                     )
                 begin_debate_message = await room.tc.send(embed=embed)
-                room.current_thread = await room.tc.start_thread(
+                room.current_thread = await room.tc.create_thread(
                     name=f"Podium {datetime.datetime.utcnow().strftime('%m-%d-%Y')}",
                     message=begin_debate_message,
                 )
@@ -598,7 +598,7 @@ class DebateRooms(commands.Cog, name="Debate"):
                                 name="**Voice Based Topic**: ", value=f"{current_topic}"
                             )
                         begin_debate_message = await room.tc.send(embed=embed)
-                        room.current_thread = await room.tc.start_thread(
+                        room.current_thread = await room.tc.create_thread(
                             name=f"Podium {datetime.datetime.utcnow().strftime('%m-%d-%Y')}",
                             message=begin_debate_message,
                         )
@@ -1994,7 +1994,10 @@ class DebateRooms(commands.Cog, name="Debate"):
                 if room.match:
                     await member.edit(mute=True)
                 else:
-                    if not room.current_topic.text_based:
+                    if room.current_topic:
+                        if not room.current_topic.text_based:
+                            await member.edit(mute=False)
+                    else:
                         await member.edit(mute=False)
 
             embed = discord.Embed(title="✅ Participant unlocked.")
