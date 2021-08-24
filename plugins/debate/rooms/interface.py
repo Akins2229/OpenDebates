@@ -1162,6 +1162,11 @@ class DebateRooms(commands.Cog, name="Debate"):
                 if topic == room.match.topic:
                     for current_member in room.vc.members:
                         await current_member.edit(mute=True)
+
+            if room.current_thread:
+                await room.current_thread.delete()
+                room.current_thread = None
+
             if member:
                 room.remove_topic(member)
             else:
@@ -1178,9 +1183,6 @@ class DebateRooms(commands.Cog, name="Debate"):
                     for member in room.vc.members:
                         if member not in room.private_debaters:
                             await member.edit(mute=True)
-
-            await room.current_thread.delete()
-            room.current_thread = None
 
             room.updating_topic = False
 
